@@ -1,0 +1,15 @@
+{
+  "name": "promethist-platform",
+  "version": "0.1.0",
+  "description": "Operate the Promethist Platform (tenants, projects, agents, knowledge) from Claude via its REST API. Approach A: a bundled MCP server that wraps /api/v1, authenticating as the logged-in user.",
+  "author": { "name": "Jiri Kastovsky" },
+  "mcpServers": {
+    "promethist": {
+      "command": "npx",
+      "args": ["tsx", "${CLAUDE_PLUGIN_ROOT}/mcp-server/src/index.ts"],
+      "env": {
+        "PROMETHIST_BASE_URL": "https://preview.eu.promethist.ai"
+      }
+    }
+  }
+}

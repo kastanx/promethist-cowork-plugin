@@ -1,0 +1,11 @@
+{
+  "name": "promethist",
+  "owner": { "name": "Jiri Kastovsky" },
+  "plugins": [
+    {
+      "name": "promethist-platform",
+      "source": "./",
+      "description": "Operate the Promethist Platform (tenants, projects, agents, knowledge) from Claude via its REST API."
+    }
+  ]
+}
