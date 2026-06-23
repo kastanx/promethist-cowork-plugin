@@ -19,6 +19,8 @@ This skill ships the full authoring knowledge as deeper guides — also availabl
 - **`references/multimodal.md`** — interactive content (input/webpage/image/video/choice/handover): types, when to use each, the `@multimodal:ref;` rule. **Read before building interactive content.**
 - **`references/integration.md`** — integrations & MCP connectors (pre/during/post kinds, connector catalog + tool subset, the `@MCP:/@mcp:{ref}_{tool};` rules). **Read before adding integrations.**
 - **`references/workspace.md`** — accounts/tenants, projects, members & the Owner/Editor/Viewer role model + invitations. **Read before managing the workspace or members.**
+- **`references/analytics.md`** — the metrics (usage/minutes, conversation & user counts, judge scores, evaluation outcomes; no NPS) and how to query/interpret them. **Read before reporting analytics.**
+- **`references/billing.md`** — the account-level conversation-minute billing model and what's readable. Payment changes are web-app only.
 
 ## Domain model
 

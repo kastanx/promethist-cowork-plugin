@@ -9,7 +9,6 @@
     "start": "tsx src/index.ts",
     "build": "tsc -p tsconfig.json",
     "test:e2e": "tsx test/e2e.ts",
-    "bench": "npm run build && node benchmark/run.mjs",
     "inspect": "npx @modelcontextprotocol/inspector npx tsx src/index.ts"
   },
   "dependencies": {

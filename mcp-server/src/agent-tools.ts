@@ -23,9 +23,9 @@ export function registerAgentTools(server: McpServer) {
         "(agents/projects/voices/visuals/locales/knowledge/evaluations/integrations/multimodal); 'quality' — the " +
         "agent quality-review rubric; 'evaluation' — evaluations & output data elements (insights); 'knowledge' — " +
         "knowledge bases (RAG); 'multimodal' — interactive content; 'integration' — integrations & MCP connectors; " +
-        "'workspace' — accounts/projects/members & the role model. ALWAYS read 'authoring' before writing/editing " +
-        "agent fields, 'quality' before reviewing/publishing, and the matching guide " +
-        "('evaluation'/'knowledge'/'multimodal'/'integration'/'workspace') before working in that area.",
+        "'workspace' — accounts/projects/members & roles; 'analytics' — metrics/usage; 'billing' — " +
+        "subscription/usage/invoices (read-only). ALWAYS read 'authoring' before writing/editing agent fields, " +
+        "'quality' before reviewing/publishing, and the matching guide before working in that area.",
       inputSchema: {
         topic: z.enum(GUIDE_TOPICS).describe("Which guide to load: authoring | domain | quality."),
       },
