@@ -8,7 +8,7 @@
       "command": "npx",
       "args": ["tsx", "${CLAUDE_PLUGIN_ROOT}/mcp-server/src/index.ts"],
       "env": {
-        "PROMETHIST_BASE_URL": "https://preview.eu.promethist.ai"
+        "PROMETHIST_BASE_URL": "https://eu.promethist.ai"
       }
     }
   }

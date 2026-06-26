@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Find the mcp-server package root (the dir containing package.json) by walking up
 // from this module — works whether we run from src/ (tsx) or dist/src/ (compiled node).
@@ -31,15 +31,21 @@ dotenv.config({ path: path.join(root, ".env") });
  *
  * URLs:
  *   PROMETHIST_BASE_URL — backend (/api/v1).  local http://localhost:9310 |
- *                         preview https://preview.eu.promethist.ai | prod https://eu.promethist.ai
+ *                         preview https://eu.promethist.ai | prod https://eu.promethist.ai
  *   PROMETHIST_WEB_URL  — Next.js app (/api/auth/session). Defaults to BASE_URL
  *                         (same host on preview/prod). Set for local (http://localhost:3000).
  */
-const baseUrl = (process.env.PROMETHIST_BASE_URL || "http://localhost:9310").replace(/\/+$/, "");
+const baseUrl = (
+  process.env.PROMETHIST_BASE_URL || "http://localhost:9310"
+).replace(/\/+$/, "");
 
 export const config = {
   baseUrl,
-  webUrl: (process.env.PROMETHIST_WEB_URL || process.env.PROMETHIST_BASE_URL || baseUrl).replace(/\/+$/, ""),
+  webUrl: (
+    process.env.PROMETHIST_WEB_URL ||
+    process.env.PROMETHIST_BASE_URL ||
+    baseUrl
+  ).replace(/\/+$/, ""),
   token: process.env.PROMETHIST_TOKEN || "",
   cookie: process.env.PROMETHIST_COOKIE || "",
 };

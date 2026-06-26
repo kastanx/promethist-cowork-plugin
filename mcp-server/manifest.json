@@ -1,0 +1,40 @@
+{
+  "manifest_version": "0.2",
+  "name": "promethist-platform",
+  "display_name": "Promethist Platform",
+  "version": "0.1.0",
+  "description": "Operate the Promethist Platform from Claude: tenants, projects, agents, evaluations, knowledge, multimodal, integrations, analytics.",
+  "long_description": "Local MCP server that wraps the Promethist Platform REST API and authenticates as the logged-in user via browser login. Provides ~83 tools plus on-demand guides for building and operating Promethist voice agents.",
+  "author": { "name": "Jiri Kastovsky" },
+  "server": {
+    "type": "node",
+    "entry_point": "dist/src/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/src/index.js"],
+      "env": {
+        "PROMETHIST_BASE_URL": "https://eu.promethist.ai"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "list_tenants",
+      "description": "List all tenants (accounts) the user can access, with their projects."
+    },
+    { "name": "list_agents", "description": "List the agents in a project." },
+    {
+      "name": "create_agent",
+      "description": "Create a Promethist agent in a project."
+    },
+    {
+      "name": "get_guide",
+      "description": "Load detailed Promethist authoring/operation guidance on demand."
+    }
+  ],
+  "keywords": ["promethist", "voice agents", "elysai"],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": { "node": ">=18.0.0" }
+  }
+}

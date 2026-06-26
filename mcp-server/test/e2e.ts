@@ -3,7 +3,7 @@
  * client over stdio, lists tools, and calls `list_tenants`.
  *
  * Provide auth via the environment (NOT committed):
- *   PROMETHIST_BASE_URL=https://preview.eu.promethist.ai \
+ *   PROMETHIST_BASE_URL=https://eu.promethist.ai \
  *   PROMETHIST_COOKIE='authjs.session-token=...' \
  *   npm run test:e2e
  *
@@ -13,8 +13,8 @@
  */
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const serverEntry = path.resolve(here, "../src/index.ts");
@@ -25,7 +25,11 @@ for (const [k, v] of Object.entries(process.env)) {
 }
 
 async function main() {
-  const transport = new StdioClientTransport({ command: "npx", args: ["tsx", serverEntry], env });
+  const transport = new StdioClientTransport({
+    command: "npx",
+    args: ["tsx", serverEntry],
+    env,
+  });
   const client = new Client({ name: "promethist-mcp-e2e", version: "0.0.0" });
   await client.connect(transport);
   console.log("✓ connected to MCP server");
@@ -36,7 +40,10 @@ async function main() {
     throw new Error("expected tool 'list_tenants' to be advertised");
   }
 
-  const res = (await client.callTool({ name: "list_tenants", arguments: {} })) as {
+  const res = (await client.callTool({
+    name: "list_tenants",
+    arguments: {},
+  })) as {
     isError?: boolean;
     content?: Array<{ type: string; text?: string }>;
   };

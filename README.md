@@ -22,10 +22,10 @@ promethist-cowork-plugin/
 
 ## Tools
 
-| Tool | Args | REST call |
-|------|------|-----------|
-| `list_tenants` | none | `GET /api/v1/tenants` |
-| `get_project` | `projectId` | `GET /api/v1/project/{projectId}` |
+| Tool           | Args        | REST call                         |
+| -------------- | ----------- | --------------------------------- |
+| `list_tenants` | none        | `GET /api/v1/tenants`             |
+| `get_project`  | `projectId` | `GET /api/v1/project/{projectId}` |
 
 ## Auth (how it connects as you)
 
@@ -50,7 +50,7 @@ gitignored `mcp-server/.env.local`. See `mcp-server/.env.example`.
 
 ```bash
 cd mcp-server && npm install
-PROMETHIST_BASE_URL=https://preview.eu.promethist.ai \
+PROMETHIST_BASE_URL=https://eu.promethist.ai \
 PROMETHIST_COOKIE='authjs.session-token=...' \
 npm run test:e2e            # spawns the server, lists tools, prints your live tenants
 ```
@@ -63,7 +63,7 @@ cd mcp-server && PROMETHIST_COOKIE='...' npm run inspect
 
 ## Install into Claude Code
 
-A local plugin must be installed *through a marketplace* — `claude plugin install <path>` does not
+A local plugin must be installed _through a marketplace_ — `claude plugin install <path>` does not
 work. This repo ships a `.claude-plugin/marketplace.json` (marketplace `promethist`), so:
 
 ```bash
@@ -72,7 +72,7 @@ claude plugin marketplace add /Users/jirikastovsky/Developer/promethist/promethi
 claude plugin install promethist-platform@promethist   # name@marketplace
 ```
 
-Then ask: *"list my Promethist tenants"*. After editing plugin files, run `/reload-plugins`.
+Then ask: _"list my Promethist tenants"_. After editing plugin files, run `/reload-plugins`.
 
 ### Or register just the MCP server (no skill)
 
