@@ -2,7 +2,7 @@
   "manifest_version": "0.2",
   "name": "promethist-platform",
   "display_name": "Promethist Platform",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Operate the Promethist Platform from Claude: tenants, projects, agents, evaluations, knowledge, multimodal, integrations, analytics.",
   "long_description": "Local MCP server that wraps the Promethist Platform REST API and authenticates as the logged-in user via browser login. Provides ~83 tools plus on-demand guides for building and operating Promethist voice agents.",
   "author": { "name": "Jiri Kastovsky" },

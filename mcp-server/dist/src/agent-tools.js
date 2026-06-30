@@ -3,6 +3,7 @@ import { apiGet, apiRequest } from "./client.js";
 import { toTool, textTool, confirmGuard } from "./tool-result.js";
 import { fetchVisualsBundle, projectCatalog } from "./visuals.js";
 import { readGuide, GUIDE_TOPICS } from "./guides.js";
+import { agentUrl } from "./links.js";
 // Ported from the in-app AgentDetailTools (copilot). Read tools + the guarded
 // state-transition writes; the copilot's LLM-internal tools (editAgent's NL diff,
 // checkAgentQuality) collapse into Claude itself reasoning over these data tools.
@@ -36,7 +37,17 @@ export function registerAgentTools(server) {
             "visualProperties, realtimeConfigurationId, evaluationDefinitionIds, ref, revision, ...). Read this before " +
             "editing, to review agent quality, or to resolve an agent's `ref`. GET /api/v1/agents/{id}.",
         inputSchema: { agent_id: z.string().describe("Agent UUID.") },
-    }, async ({ agent_id }) => toTool(await apiGet(`/api/v1/agents/${encodeURIComponent(agent_id)}`)));
+    }, async ({ agent_id }) => {
+        const r = await apiGet(`/api/v1/agents/${encodeURIComponent(agent_id)}`);
+        if (r.ok && r.data && typeof r.data === "object") {
+            const a = r.data;
+            const tid = a.project?.tenant?.id;
+            const pid = a.project?.id;
+            if (tid && pid && a.id)
+                a.webUrl = agentUrl(tid, pid, a.id);
+        }
+        return toTool(r);
+    });
     server.registerTool("list_agents", {
         title: "List agents",
         description: "List the latest revision of each agent in a project (id, ref, name, state, ...). Use to find an agent's " +
@@ -45,7 +56,18 @@ export function registerAgentTools(server) {
             project_id: z.string().describe("Project ID (from list_tenants)."),
             include_archived: z.boolean().optional().describe("Include archived agents. Default false."),
         },
-    }, async ({ project_id, include_archived }) => toTool(await apiGet(`/api/v1/project/${encodeURIComponent(project_id)}/agents/latest?includeArchived=${include_archived ? "true" : "false"}`)));
+    }, async ({ project_id, include_archived }) => {
+        const r = await apiGet(`/api/v1/project/${encodeURIComponent(project_id)}/agents/latest?includeArchived=${include_archived ? "true" : "false"}`);
+        if (r.ok && Array.isArray(r.data)) {
+            const proj = await apiGet(`/api/v1/project/${encodeURIComponent(project_id)}`);
+            const tid = proj.ok && proj.data && typeof proj.data === "object" ? proj.data.tenantId : undefined;
+            if (tid)
+                for (const row of r.data)
+                    if (row?.id)
+                        row.webUrl = agentUrl(tid, project_id, row.id);
+        }
+        return toTool(r);
+    });
     server.registerTool("get_agent_revisions", {
         title: "Get agent revisions",
         description: "List all revisions of an agent (newest first) with revision number, state " +

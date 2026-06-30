@@ -15,6 +15,7 @@ import { registerAnalyticsTools } from "./analytics-tools.js";
 import { buildCompoundVisualRef, CAMERA_PRESETS } from "./visuals.js";
 import { PROMETHIST_INSTRUCTIONS } from "./instructions.js";
 import { config } from "./config.js";
+import { tenantUrl, projectUrl, agentUrl } from "./links.js";
 
 const server = new McpServer(
   { name: "promethist-platform", version: "0.1.0" },
@@ -75,7 +76,16 @@ server.registerTool(
       "Maps to GET /api/v1/tenants.",
     inputSchema: {},
   },
-  async () => toTool(await apiGet("/api/v1/tenants")),
+  async () => {
+    const r = await apiGet("/api/v1/tenants");
+    if (r.ok && Array.isArray(r.data)) {
+      for (const t of r.data as any[]) {
+        if (t?.id) t.webUrl = tenantUrl(t.id);
+        if (Array.isArray(t?.projects)) for (const p of t.projects) if (p?.id) p.webUrl = projectUrl(t.id, p.id);
+      }
+    }
+    return toTool(r);
+  },
 );
 
 server.registerTool(
@@ -89,7 +99,14 @@ server.registerTool(
       projectId: z.string().describe("The project ID (as returned by list_tenants)."),
     },
   },
-  async ({ projectId }) => toTool(await apiGet(`/api/v1/project/${encodeURIComponent(projectId)}`)),
+  async ({ projectId }) => {
+    const r = await apiGet(`/api/v1/project/${encodeURIComponent(projectId)}`);
+    if (r.ok && r.data && typeof r.data === "object") {
+      const p = r.data as any;
+      if (p.tenantId && p.id) p.webUrl = projectUrl(p.tenantId, p.id);
+    }
+    return toTool(r);
+  },
 );
 
 // ---- write tools (agents) ----------------------------------------------------
@@ -134,7 +151,14 @@ server.registerTool(
       businessImpact: a.businessImpact ?? 0.5,
     };
     for (const k of OPTIONAL_CONTENT) if (a[k] !== undefined) body[k] = a[k];
-    return toTool(await apiRequest("POST", `/api/v1/project/${encodeURIComponent(a.projectId)}/agents`, body));
+    const r = await apiRequest("POST", `/api/v1/project/${encodeURIComponent(a.projectId)}/agents`, body);
+    if (r.ok && r.data && typeof r.data === "object") {
+      const ag = r.data as any;
+      const proj = await apiGet(`/api/v1/project/${encodeURIComponent(a.projectId)}`);
+      const tid = proj.ok && proj.data && typeof proj.data === "object" ? (proj.data as any).tenantId : undefined;
+      if (tid && ag.id) ag.webUrl = agentUrl(tid, a.projectId, ag.id);
+    }
+    return toTool(r);
   },
 );
 
@@ -251,7 +275,14 @@ server.registerTool(
       templateRef: d.templateRef,
       templateVariables: d.templateVariables,
     };
-    return toTool(await apiRequest("PUT", `/api/v1/agents/${encodeURIComponent(targetId)}`, body));
+    const r = await apiRequest("PUT", `/api/v1/agents/${encodeURIComponent(targetId)}`, body);
+    if (r.ok && r.data && typeof r.data === "object") {
+      const ag = r.data as any;
+      const tid = d.project?.tenant?.id;
+      const pid = d.project?.id;
+      if (tid && pid && ag.id) ag.webUrl = agentUrl(tid, pid, ag.id);
+    }
+    return toTool(r);
   },
 );
 

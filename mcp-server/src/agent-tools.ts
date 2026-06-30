@@ -4,6 +4,7 @@ import { apiGet, apiRequest } from "./client.js";
 import { toTool, textTool, confirmGuard } from "./tool-result.js";
 import { fetchVisualsBundle, projectCatalog } from "./visuals.js";
 import { readGuide, GUIDE_TOPICS } from "./guides.js";
+import { agentUrl } from "./links.js";
 
 // Ported from the in-app AgentDetailTools (copilot). Read tools + the guarded
 // state-transition writes; the copilot's LLM-internal tools (editAgent's NL diff,
@@ -51,7 +52,16 @@ export function registerAgentTools(server: McpServer) {
         "editing, to review agent quality, or to resolve an agent's `ref`. GET /api/v1/agents/{id}.",
       inputSchema: { agent_id: z.string().describe("Agent UUID.") },
     },
-    async ({ agent_id }) => toTool(await apiGet(`/api/v1/agents/${encodeURIComponent(agent_id)}`)),
+    async ({ agent_id }) => {
+      const r = await apiGet(`/api/v1/agents/${encodeURIComponent(agent_id)}`);
+      if (r.ok && r.data && typeof r.data === "object") {
+        const a = r.data as any;
+        const tid = a.project?.tenant?.id;
+        const pid = a.project?.id;
+        if (tid && pid && a.id) a.webUrl = agentUrl(tid, pid, a.id);
+      }
+      return toTool(r);
+    },
   );
 
   server.registerTool(
@@ -66,12 +76,17 @@ export function registerAgentTools(server: McpServer) {
         include_archived: z.boolean().optional().describe("Include archived agents. Default false."),
       },
     },
-    async ({ project_id, include_archived }) =>
-      toTool(
-        await apiGet(
-          `/api/v1/project/${encodeURIComponent(project_id)}/agents/latest?includeArchived=${include_archived ? "true" : "false"}`,
-        ),
-      ),
+    async ({ project_id, include_archived }) => {
+      const r = await apiGet(
+        `/api/v1/project/${encodeURIComponent(project_id)}/agents/latest?includeArchived=${include_archived ? "true" : "false"}`,
+      );
+      if (r.ok && Array.isArray(r.data)) {
+        const proj = await apiGet(`/api/v1/project/${encodeURIComponent(project_id)}`);
+        const tid = proj.ok && proj.data && typeof proj.data === "object" ? (proj.data as any).tenantId : undefined;
+        if (tid) for (const row of r.data as any[]) if (row?.id) row.webUrl = agentUrl(tid, project_id, row.id);
+      }
+      return toTool(r);
+    },
   );
 
   server.registerTool(
