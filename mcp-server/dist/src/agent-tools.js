@@ -18,7 +18,8 @@ export function registerAgentTools(server) {
             "agent quality-review rubric; 'evaluation' — evaluations & output data elements (insights); 'knowledge' — " +
             "knowledge bases (RAG); 'multimodal' — interactive content; 'integration' — integrations & MCP connectors; " +
             "'workspace' — accounts/projects/members & roles; 'analytics' — metrics/usage; 'billing' — " +
-            "subscription/usage/invoices (read-only). ALWAYS read 'authoring' before writing/editing agent fields, " +
+            "subscription/usage/invoices (read-only); 'testing' — how to live-test an agent's behavior (roleplay + " +
+            "critique). ALWAYS read 'authoring' before writing/editing agent fields, 'testing' before testing an agent, " +
             "'quality' before reviewing/publishing, and the matching guide before working in that area.",
         inputSchema: {
             topic: z.enum(GUIDE_TOPICS).describe("Which guide to load: authoring | domain | quality."),

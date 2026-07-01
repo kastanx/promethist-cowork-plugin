@@ -17,7 +17,7 @@ function packageRoot(start: string): string {
 
 const GUIDES_DIR = path.join(packageRoot(path.dirname(fileURLToPath(import.meta.url))), "guides");
 
-export const GUIDE_TOPICS = ["authoring", "domain", "quality", "evaluation", "knowledge", "multimodal", "integration", "workspace", "analytics", "billing"] as const;
+export const GUIDE_TOPICS = ["authoring", "domain", "quality", "evaluation", "knowledge", "multimodal", "integration", "workspace", "analytics", "billing", "testing"] as const;
 export type GuideTopic = (typeof GUIDE_TOPICS)[number];
 
 export function readGuide(topic: string): string | null {

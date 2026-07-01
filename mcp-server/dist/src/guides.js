@@ -16,7 +16,7 @@ function packageRoot(start) {
     return start;
 }
 const GUIDES_DIR = path.join(packageRoot(path.dirname(fileURLToPath(import.meta.url))), "guides");
-export const GUIDE_TOPICS = ["authoring", "domain", "quality", "evaluation", "knowledge", "multimodal", "integration", "workspace", "analytics", "billing"];
+export const GUIDE_TOPICS = ["authoring", "domain", "quality", "evaluation", "knowledge", "multimodal", "integration", "workspace", "analytics", "billing", "testing"];
 export function readGuide(topic) {
     if (!GUIDE_TOPICS.includes(topic))
         return null;

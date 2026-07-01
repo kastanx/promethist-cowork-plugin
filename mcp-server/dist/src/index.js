@@ -12,6 +12,7 @@ import { registerMultimodalTools } from "./multimodal-tools.js";
 import { registerIntegrationTools } from "./integration-tools.js";
 import { registerWorkspaceTools } from "./workspace-tools.js";
 import { registerAnalyticsTools } from "./analytics-tools.js";
+import { registerTestTools } from "./test-tools.js";
 import { buildCompoundVisualRef, CAMERA_PRESETS } from "./visuals.js";
 import { PROMETHIST_INSTRUCTIONS } from "./instructions.js";
 import { config } from "./config.js";
@@ -257,6 +258,7 @@ registerMultimodalTools(server);
 registerIntegrationTools(server);
 registerWorkspaceTools(server);
 registerAnalyticsTools(server);
+registerTestTools(server);
 async function main() {
     await server.connect(new StdioServerTransport());
     const mode = config.token ? "token" : config.cookie ? "cookie" : "NONE";
