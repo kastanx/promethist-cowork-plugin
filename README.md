@@ -1,92 +1,92 @@
-# Promethist Platform — Claude cowork plugin
+# Promethist Platform — Claude connector
 
-A Claude Code / cowork **plugin** that lets Claude operate the Promethist Platform.
-It bundles an MCP server (`mcp-server/`) that wraps the platform REST API (`/api/v1`) and a
-skill (`skills/promethist/`) that teaches Claude when and how to use it.
+Operate the **Promethist Platform** from Claude: create/edit agents, evaluations, knowledge,
+multimodal content, integrations, manage tenants/projects/members, read analytics & billing, and
+**live-test agents** — all as the logged-in user. 84 tools + on-demand guides, no backend changes.
 
-This is **Approach A**: zero backend changes — the plugin authenticates as the logged-in user and
-calls the existing API. (Approach B = make the platform itself an MCP server, reusing its in-app
-`@Tool` functions; that needs backend work and is the production target.)
+It ships in **two forms from this one repo** (same MCP server underneath):
+
+| Surface | How to add it |
+|---|---|
+| **Claude Desktop cowork** | a Desktop Extension — `promethist-platform.mcpb` (double-click, or org-upload) |
+| **Claude Code** (terminal / Code panel) | this repo is a **plugin marketplace** — `claude plugin ...` |
+
+Auth is **browser login** — the first tool call opens your browser to Promethist and you log in as
+yourself; the session is cached and auto-refreshed. Nothing to paste, no cookies to share.
+
+---
+
+## Use it in Claude Code (plugin marketplace)
+
+This repo is itself a marketplace (`.claude-plugin/marketplace.json`, name `promethist`). Add it,
+then install the plugin:
+
+```bash
+# from a git host (after pushing this repo):
+claude plugin marketplace add <git-url>          # or a github owner/repo, or a local path
+claude plugin install promethist-platform@promethist
+```
+
+Inside Claude Code you can also use the slash forms: `/plugin marketplace add …` then
+`/plugin install promethist-platform@promethist`. Update later with `/plugin marketplace update`.
+
+Then ask: *"list my Promethist tenants."* First call opens a browser to log in.
+
+> The plugin runs a **self-contained bundle** (`mcp-server/dist/bundle.mjs`) with plain `node` — no
+> `npm install` on the user's side. They only need Node on PATH (Claude Code has it).
+
+## Use it in Claude Desktop cowork (Desktop Extension)
+
+Cowork loads Desktop Extensions, not Claude Code plugins. Build/get the `.mcpb` and install it:
+
+- **Double-click** `promethist-platform.mcpb` → Install (or Settings → Extensions → Advanced → Install).
+- **For a team:** a Team/Enterprise **org admin** uploads it at *Organization settings → Connectors →
+  Desktop*; members then click **"Add to team"** inside Claude — no file passing.
+
+Build the `.mcpb` (from `mcp-server/`):
+
+```bash
+cd mcp-server && npm install && npm run build
+npx -y @anthropic-ai/mcpb@latest pack . ~/Desktop/promethist-platform.mcpb
+```
+
+---
+
+## What's inside
+
+- **Agents** — create/edit/get/list, revisions, revert, promote to preview/published, voices, visuals, templates.
+- **Evaluations, Knowledge, Multimodal/interactive content, Integrations & MCP connectors.**
+- **Workspace** — tenants, projects, members/roles, invitations.
+- **Analytics & billing** — read-only.
+- **`test_agent`** — hold a real conversation with a live agent (any published/preview/draft) to test behavior, then critique the config. See `get_guide('testing')`.
+- **`get_guide(topic)`** — the in-app copilot's authoring/quality/area playbooks on demand.
+- Read tools return a **`webUrl`** deep link into the Promethist studio.
+
+## Develop
+
+```bash
+cd mcp-server
+npm install
+npm run build        # tsc → dist/src, then esbuild → dist/bundle.mjs (the plugin runtime)
+npm run test:e2e     # optional: needs PROMETHIST_BASE_URL + a session
+```
+
+After changing server code: `npm run build` (rebuilds the committed `dist/bundle.mjs`), then
+`/reload-plugins` (Claude Code) and/or repack the `.mcpb`. Bump `version` in
+`.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, and `mcp-server/manifest.json`.
+
+`PROMETHIST_BASE_URL` selects the environment (default `https://eu.promethist.ai`).
 
 ## Layout
 
 ```
-promethist-cowork-plugin/
-├── .claude-plugin/plugin.json     # manifest + MCP server registration
-├── mcp-server/                    # the bundled MCP server (TypeScript)
-│   ├── src/{index,config,auth,client}.ts
-│   ├── test/e2e.ts
-│   └── package.json
-└── skills/promethist/SKILL.md     # how Claude should use the tools
+.claude-plugin/
+  marketplace.json     # makes this repo a plugin marketplace
+  plugin.json          # the plugin: runs mcp-server/dist/bundle.mjs via node
+mcp-server/
+  src/                 # TypeScript sources (index + per-area tool modules)
+  dist/bundle.mjs      # committed single-file runtime (the plugin uses this)
+  guides/*.md          # get_guide content
+  manifest.json        # Desktop Extension (.mcpb) manifest
+skills/promethist/     # skill + reference copies of the guides
 ```
-
-## Tools
-
-| Tool           | Args        | REST call                         |
-| -------------- | ----------- | --------------------------------- |
-| `list_tenants` | none        | `GET /api/v1/tenants`             |
-| `get_project`  | `projectId` | `GET /api/v1/project/{projectId}` |
-
-## Auth (how it connects as you)
-
-The platform backend is an OAuth2 resource server (Keycloak realm `platform`) and only accepts a
-`Bearer` JWT — it does **not** read cookies. The web app uses an Auth.js session cookie whose
-encrypted blob holds the Keycloak token. So the server resolves auth like this:
-
-```
-authjs.session-token cookie ──▶ GET {webUrl}/api/auth/session ──▶ { accessToken } ──▶ Bearer ──▶ /api/v1
-```
-
-The token is cached and auto-refreshed (the session endpoint refreshes it), so the long-lived
-cookie keeps working without the ~30-min access-token expiry.
-
-Provide **`PROMETHIST_COOKIE`** (recommended) or **`PROMETHIST_TOKEN`** via the environment or a
-gitignored `mcp-server/.env.local`. See `mcp-server/.env.example`.
-
-> Get the cookie: in a logged-in web session, DevTools → Application → Cookies →
-> copy `authjs.session-token`, and set `PROMETHIST_COOKIE=authjs.session-token=<value>`.
-
-## Try it
-
-```bash
-cd mcp-server && npm install
-PROMETHIST_BASE_URL=https://eu.promethist.ai \
-PROMETHIST_COOKIE='authjs.session-token=...' \
-npm run test:e2e            # spawns the server, lists tools, prints your live tenants
-```
-
-Interactive inspector:
-
-```bash
-cd mcp-server && PROMETHIST_COOKIE='...' npm run inspect
-```
-
-## Install into Claude Code
-
-A local plugin must be installed _through a marketplace_ — `claude plugin install <path>` does not
-work. This repo ships a `.claude-plugin/marketplace.json` (marketplace `promethist`), so:
-
-```bash
-export PROMETHIST_COOKIE='authjs.session-token=...'   # manifest passes ${PROMETHIST_COOKIE} through
-claude plugin marketplace add /Users/jirikastovsky/Developer/promethist/promethist-cowork-plugin
-claude plugin install promethist-platform@promethist   # name@marketplace
-```
-
-Then ask: _"list my Promethist tenants"_. After editing plugin files, run `/reload-plugins`.
-
-### Or register just the MCP server (no skill)
-
-```bash
-# create mcp-server/.env.local from .env.example first (holds PROMETHIST_COOKIE), then:
-claude mcp add promethist -- npx tsx /Users/jirikastovsky/Developer/promethist/promethist-cowork-plugin/mcp-server/src/index.ts
-```
-
-> Runtime needs `mcp-server/node_modules` (`cd mcp-server && npm install`) — `npx tsx` resolves
-> `tsx` and the MCP SDK from there.
-
-## Next steps
-
-- Add more read tools (`get_project_context`, list agents, analytics).
-- Add write tools (create agent, edit prompt, upload knowledge) — each maps to a `/api/v1` endpoint;
-  they require a token with editor/owner roles in the target tenant/project.
-- Automate token acquisition with a Keycloak grant (for non-interactive use).

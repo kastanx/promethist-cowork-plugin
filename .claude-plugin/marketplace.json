@@ -5,7 +5,9 @@
     {
       "name": "promethist-platform",
       "source": "./",
-      "description": "Operate the Promethist Platform (tenants, projects, agents, knowledge) from Claude via its REST API."
+      "version": "0.3.0",
+      "description": "Operate the Promethist Platform from Claude — agents, evaluations, knowledge, multimodal, integrations, analytics — plus live agent testing.",
+      "author": { "name": "Jiri Kastovsky" }
     }
   ]
 }

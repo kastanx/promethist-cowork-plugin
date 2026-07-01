@@ -1,0 +1,17 @@
+# dependencies (the plugin ships a self-contained bundle instead — see mcp-server/dist/bundle.mjs)
+node_modules/
+
+# local secrets / env (never commit a real cookie or token)
+.env
+.env.local
+
+# built desktop-extension artifact (distribute via release/org-upload, not the repo)
+*.mcpb
+
+# test-session cookie jars written by agent_chat.sh
+.session-*
+
+# incoming scratch (coworker drops, etc.)
+_incoming/
+
+# committed on purpose (do NOT ignore): mcp-server/dist/ — the built bundle is the plugin runtime.
