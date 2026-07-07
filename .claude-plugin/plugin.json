@@ -1,6 +1,6 @@
 {
   "name": "promethist-platform",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Operate the Promethist Platform from Claude — tenants, projects, agents, evaluations, knowledge, multimodal, integrations, analytics — and live-test agents. Wraps the REST API, authenticating as the logged-in user via browser login.",
   "author": { "name": "Jiri Kastovsky" },
   "homepage": "https://eu.promethist.ai",

@@ -5,7 +5,7 @@
     {
       "name": "promethist-platform",
       "source": "./",
-      "version": "0.3.2",
+      "version": "0.3.3",
       "description": "Operate the Promethist Platform from Claude — agents, evaluations, knowledge, multimodal, integrations, analytics — plus live agent testing.",
       "author": { "name": "Jiri Kastovsky" }
     }

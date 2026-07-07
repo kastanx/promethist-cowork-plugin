@@ -6,31 +6,16 @@ import { config } from "./config.js";
 const COOKIE_NAME = "authjs.session-token";
 
 function openBrowser(url: string): void {
+  if (process.env.PROMETHIST_NO_BROWSER === "1") return; // automated tests / headless
+  // Auto-open only on macOS/Linux (open/xdg-open pass the URL as one argv element, so `&` is safe).
+  // On Windows we do NOT auto-open — `cmd start` truncates the URL at `&`, and `explorer.exe <url>`
+  // opens a Documents window instead of the browser. The login flow prints the URL to click instead.
+  if (process.platform !== "darwin" && process.platform !== "linux") return;
   try {
-    if (process.platform === "win32") {
-      // Open on Windows WITHOUT a shell. `cmd /c start` treats `&` as a command separator and
-      // truncates the URL (dropping `&state=` → "Login failed"); `powershell` isn't always on the
-      // app's PATH. explorer.exe / rundll32.exe take the URL as a SINGLE argv element with no shell
-      // re-parse, so `&` survives. Try explorer first, fall back to rundll32 if it isn't found.
-      const p = spawn("explorer.exe", [url], { stdio: "ignore", detached: true });
-      p.on("error", () => {
-        try {
-          spawn("rundll32.exe", ["url.dll,FileProtocolHandler", url], {
-            stdio: "ignore",
-            detached: true,
-          }).unref();
-        } catch {
-          /* user can copy the URL from stderr */
-        }
-      });
-      p.unref();
-    } else {
-      // macOS `open` / Linux `xdg-open` pass the URL as one argv element — `&` is safe.
-      const cmd = process.platform === "darwin" ? "open" : "xdg-open";
-      spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
-    }
+    const cmd = process.platform === "darwin" ? "open" : "xdg-open";
+    spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
   } catch {
-    // If we can't open a browser, the user can still copy the URL from stderr.
+    // If we can't open a browser, the user can still copy the URL from the login message.
   }
 }
 
@@ -117,9 +102,10 @@ export function loginViaBrowser(
       const redirectUri = `http://127.0.0.1:${port}/cb`;
       const url = `${config.webUrl}/cli/connect?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
       console.error(`[promethist] Opening browser to log in:\n  ${url}`);
-      // onAuthUrl is a test hook: when provided, drive the URL instead of opening a browser.
+      // onAuthUrl exposes the URL to the caller (the login tool prints it); also auto-open the
+      // browser on macOS/Linux (no-op on Windows / when PROMETHIST_NO_BROWSER=1).
       if (onAuthUrl) onAuthUrl(url);
-      else openBrowser(url);
+      openBrowser(url);
     });
   });
 }

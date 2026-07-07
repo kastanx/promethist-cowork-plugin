@@ -21503,23 +21503,11 @@ import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 var COOKIE_NAME = "authjs.session-token";
 function openBrowser(url) {
+  if (process.env.PROMETHIST_NO_BROWSER === "1") return;
+  if (process.platform !== "darwin" && process.platform !== "linux") return;
   try {
-    if (process.platform === "win32") {
-      const p = spawn("explorer.exe", [url], { stdio: "ignore", detached: true });
-      p.on("error", () => {
-        try {
-          spawn("rundll32.exe", ["url.dll,FileProtocolHandler", url], {
-            stdio: "ignore",
-            detached: true
-          }).unref();
-        } catch {
-        }
-      });
-      p.unref();
-    } else {
-      const cmd = process.platform === "darwin" ? "open" : "xdg-open";
-      spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
-    }
+    const cmd = process.platform === "darwin" ? "open" : "xdg-open";
+    spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
   } catch {
   }
 }
@@ -21593,7 +21581,7 @@ function loginViaBrowser(timeoutMs = 18e4, onAuthUrl) {
       console.error(`[promethist] Opening browser to log in:
   ${url}`);
       if (onAuthUrl) onAuthUrl(url);
-      else openBrowser(url);
+      openBrowser(url);
     });
   });
 }
@@ -21630,21 +21618,32 @@ async function exchangeCookieForToken(cookie) {
     return null;
   }
 }
-async function interactiveLogin() {
+var pendingLogin = null;
+async function beginLogin() {
   const existing = config2.cookie || readStoredCookie();
   if (existing) {
-    const ex2 = await exchangeCookieForToken(existing);
-    if (ex2) {
-      accessCache = { token: ex2.token, expEpochMs: ex2.expMs };
-      return ex2.email ?? "unknown";
+    const ex = await exchangeCookieForToken(existing);
+    if (ex) {
+      accessCache = { token: ex.token, expEpochMs: ex.expMs };
+      return "";
     }
   }
-  const cookie = await loginViaBrowser();
-  writeStoredCookie(cookie);
-  const ex = await exchangeCookieForToken(cookie);
-  if (!ex) throw new Error("Login completed but the session returned no access token. Please try again.");
-  accessCache = { token: ex.token, expEpochMs: ex.expMs };
-  return ex.email ?? "unknown";
+  if (pendingLogin) return pendingLogin.url;
+  let resolveUrl;
+  const urlP = new Promise((r) => {
+    resolveUrl = r;
+  });
+  const done = loginViaBrowser(6e5, (u) => resolveUrl(u)).then(async (cookie) => {
+    writeStoredCookie(cookie);
+    const ex = await exchangeCookieForToken(cookie);
+    if (ex) accessCache = { token: ex.token, expEpochMs: ex.expMs };
+  }).catch(() => {
+  }).finally(() => {
+    pendingLogin = null;
+  });
+  const url = await urlP;
+  pendingLogin = { url, done };
+  return url;
 }
 async function getAccessToken() {
   if (config2.token) return config2.token;
@@ -21661,9 +21660,14 @@ async function getAccessToken() {
   if (process.env.PROMETHIST_NO_BROWSER === "1") {
     throw new Error("Not authenticated. Run the 'login' tool to sign in (or set PROMETHIST_COOKIE / PROMETHIST_TOKEN).");
   }
-  await interactiveLogin();
-  if (!accessCache) throw new Error("Login did not produce a token.");
-  return accessCache.token;
+  const url = await beginLogin();
+  if (accessCache) return accessCache.token;
+  throw new Error(
+    `Not logged in yet. Open this link in your browser to sign in:
+${url}
+
+Once you've finished logging in there, run your request again.`
+  );
 }
 function logout() {
   accessCache = null;
@@ -23577,9 +23581,21 @@ server.registerTool(
   },
   async () => {
     try {
-      const email2 = await interactiveLogin();
+      const url = await beginLogin();
+      if (!url) {
+        return { content: [{ type: "text", text: "You're already logged in to Promethist." }] };
+      }
       return {
-        content: [{ type: "text", text: `Logged in as ${email2}. You can now use the other tools.` }]
+        content: [
+          {
+            type: "text",
+            text: `Open this link in your browser to log in to Promethist:
+
+${url}
+
+(On macOS it may have opened automatically.) As soon as you finish logging in there, you're connected \u2014 just ask me again.`
+          }
+        ]
       };
     } catch (e) {
       return { content: [{ type: "text", text: `Login failed: ${e.message}` }], isError: true };

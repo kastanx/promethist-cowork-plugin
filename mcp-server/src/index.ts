@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { apiGet, apiRequest } from "./client.js";
-import { interactiveLogin, logout } from "./auth.js";
+import { beginLogin, logout } from "./auth.js";
 import { toTool } from "./tool-result.js";
 import { registerAgentTools } from "./agent-tools.js";
 import { registerEvaluationTools } from "./evaluation-tools.js";
@@ -37,9 +37,20 @@ server.registerTool(
   },
   async () => {
     try {
-      const email = await interactiveLogin();
+      const url = await beginLogin();
+      if (!url) {
+        return { content: [{ type: "text" as const, text: "You're already logged in to Promethist." }] };
+      }
       return {
-        content: [{ type: "text" as const, text: `Logged in as ${email}. You can now use the other tools.` }],
+        content: [
+          {
+            type: "text" as const,
+            text:
+              `Open this link in your browser to log in to Promethist:\n\n${url}\n\n` +
+              `(On macOS it may have opened automatically.) As soon as you finish logging in there, ` +
+              `you're connected — just ask me again.`,
+          },
+        ],
       };
     } catch (e) {
       return { content: [{ type: "text" as const, text: `Login failed: ${(e as Error).message}` }], isError: true };
