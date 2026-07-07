@@ -21505,11 +21505,17 @@ var COOKIE_NAME = "authjs.session-token";
 function openBrowser(url) {
   try {
     if (process.platform === "win32") {
-      const safe = url.replace(/'/g, "''");
-      spawn("powershell", ["-NoProfile", "-NonInteractive", "-Command", `Start-Process '${safe}'`], {
-        stdio: "ignore",
-        detached: true
-      }).unref();
+      const p = spawn("explorer.exe", [url], { stdio: "ignore", detached: true });
+      p.on("error", () => {
+        try {
+          spawn("rundll32.exe", ["url.dll,FileProtocolHandler", url], {
+            stdio: "ignore",
+            detached: true
+          }).unref();
+        } catch {
+        }
+      });
+      p.unref();
     } else {
       const cmd = process.platform === "darwin" ? "open" : "xdg-open";
       spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();

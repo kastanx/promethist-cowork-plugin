@@ -6,15 +6,23 @@ const COOKIE_NAME = "authjs.session-token";
 function openBrowser(url) {
     try {
         if (process.platform === "win32") {
-            // WINDOWS: `cmd /c start "" <url>` treats `&` in the URL as a command separator and truncates
-            // it — dropping the `&state=` param, so the callback fails the state check ("Login failed").
-            // PowerShell Start-Process with a single-quoted literal opens the default browser with the
-            // full URL intact. (Windows PowerShell 5.1 ships with every Windows and is on PATH.)
-            const safe = url.replace(/'/g, "''"); // PowerShell single-quote escape
-            spawn("powershell", ["-NoProfile", "-NonInteractive", "-Command", `Start-Process '${safe}'`], {
-                stdio: "ignore",
-                detached: true,
-            }).unref();
+            // Open on Windows WITHOUT a shell. `cmd /c start` treats `&` as a command separator and
+            // truncates the URL (dropping `&state=` → "Login failed"); `powershell` isn't always on the
+            // app's PATH. explorer.exe / rundll32.exe take the URL as a SINGLE argv element with no shell
+            // re-parse, so `&` survives. Try explorer first, fall back to rundll32 if it isn't found.
+            const p = spawn("explorer.exe", [url], { stdio: "ignore", detached: true });
+            p.on("error", () => {
+                try {
+                    spawn("rundll32.exe", ["url.dll,FileProtocolHandler", url], {
+                        stdio: "ignore",
+                        detached: true,
+                    }).unref();
+                }
+                catch {
+                    /* user can copy the URL from stderr */
+                }
+            });
+            p.unref();
         }
         else {
             // macOS `open` / Linux `xdg-open` pass the URL as one argv element — `&` is safe.
