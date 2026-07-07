@@ -21503,10 +21503,17 @@ import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 var COOKIE_NAME = "authjs.session-token";
 function openBrowser(url) {
-  const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "cmd" : "xdg-open";
-  const args = process.platform === "win32" ? ["/c", "start", "", url] : [url];
   try {
-    spawn(cmd, args, { stdio: "ignore", detached: true }).unref();
+    if (process.platform === "win32") {
+      const safe = url.replace(/'/g, "''");
+      spawn("powershell", ["-NoProfile", "-NonInteractive", "-Command", `Start-Process '${safe}'`], {
+        stdio: "ignore",
+        detached: true
+      }).unref();
+    } else {
+      const cmd = process.platform === "darwin" ? "open" : "xdg-open";
+      spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
+    }
   } catch {
   }
 }

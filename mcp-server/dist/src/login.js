@@ -4,10 +4,23 @@ import crypto from "node:crypto";
 import { config } from "./config.js";
 const COOKIE_NAME = "authjs.session-token";
 function openBrowser(url) {
-    const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "cmd" : "xdg-open";
-    const args = process.platform === "win32" ? ["/c", "start", "", url] : [url];
     try {
-        spawn(cmd, args, { stdio: "ignore", detached: true }).unref();
+        if (process.platform === "win32") {
+            // WINDOWS: `cmd /c start "" <url>` treats `&` in the URL as a command separator and truncates
+            // it — dropping the `&state=` param, so the callback fails the state check ("Login failed").
+            // PowerShell Start-Process with a single-quoted literal opens the default browser with the
+            // full URL intact. (Windows PowerShell 5.1 ships with every Windows and is on PATH.)
+            const safe = url.replace(/'/g, "''"); // PowerShell single-quote escape
+            spawn("powershell", ["-NoProfile", "-NonInteractive", "-Command", `Start-Process '${safe}'`], {
+                stdio: "ignore",
+                detached: true,
+            }).unref();
+        }
+        else {
+            // macOS `open` / Linux `xdg-open` pass the URL as one argv element — `&` is safe.
+            const cmd = process.platform === "darwin" ? "open" : "xdg-open";
+            spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
+        }
     }
     catch {
         // If we can't open a browser, the user can still copy the URL from stderr.
