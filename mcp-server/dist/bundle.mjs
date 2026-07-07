@@ -3236,8 +3236,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path4) {
-      let input = path4;
+    function removeDotSegments(path5) {
+      let input = path5;
       const output = [];
       let nextSlash = -1;
       let len = 0;
@@ -3489,8 +3489,8 @@ var require_schemes = __commonJS({
         wsComponent.secure = void 0;
       }
       if (wsComponent.resourceName) {
-        const [path4, query] = wsComponent.resourceName.split("?");
-        wsComponent.path = path4 && path4 !== "/" ? path4 : void 0;
+        const [path5, query] = wsComponent.resourceName.split("?");
+        wsComponent.path = path5 && path5 !== "/" ? path5 : void 0;
         wsComponent.query = query;
         wsComponent.resourceName = void 0;
       }
@@ -6883,12 +6883,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f;
     };
-    function addFormats(ajv, list, fs4, exportName) {
+    function addFormats(ajv, list, fs5, exportName) {
       var _a;
       var _b;
       (_a = (_b = ajv.opts.code).formats) !== null && _a !== void 0 ? _a : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f of list)
-        ajv.addFormat(f, fs4[f]);
+        ajv.addFormat(f, fs5[f]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6967,9 +6967,9 @@ var require_package = __commonJS({
 // node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
   "node_modules/dotenv/lib/main.js"(exports, module) {
-    var fs4 = __require("fs");
-    var path4 = __require("path");
-    var os2 = __require("os");
+    var fs5 = __require("fs");
+    var path5 = __require("path");
+    var os3 = __require("os");
     var crypto2 = __require("crypto");
     var packageJson = require_package();
     var version2 = packageJson.version;
@@ -7076,7 +7076,7 @@ var require_main = __commonJS({
       if (options && options.path && options.path.length > 0) {
         if (Array.isArray(options.path)) {
           for (const filepath of options.path) {
-            if (fs4.existsSync(filepath)) {
+            if (fs5.existsSync(filepath)) {
               possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
             }
           }
@@ -7084,15 +7084,15 @@ var require_main = __commonJS({
           possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
         }
       } else {
-        possibleVaultPath = path4.resolve(process.cwd(), ".env.vault");
+        possibleVaultPath = path5.resolve(process.cwd(), ".env.vault");
       }
-      if (fs4.existsSync(possibleVaultPath)) {
+      if (fs5.existsSync(possibleVaultPath)) {
         return possibleVaultPath;
       }
       return null;
     }
     function _resolveHome(envPath) {
-      return envPath[0] === "~" ? path4.join(os2.homedir(), envPath.slice(1)) : envPath;
+      return envPath[0] === "~" ? path5.join(os3.homedir(), envPath.slice(1)) : envPath;
     }
     function _configVault(options) {
       const debug = Boolean(options && options.debug);
@@ -7109,7 +7109,7 @@ var require_main = __commonJS({
       return { parsed };
     }
     function configDotenv(options) {
-      const dotenvPath = path4.resolve(process.cwd(), ".env");
+      const dotenvPath = path5.resolve(process.cwd(), ".env");
       let encoding = "utf8";
       const debug = Boolean(options && options.debug);
       const quiet = options && "quiet" in options ? options.quiet : true;
@@ -7133,13 +7133,13 @@ var require_main = __commonJS({
       }
       let lastError;
       const parsedAll = {};
-      for (const path5 of optionPaths) {
+      for (const path6 of optionPaths) {
         try {
-          const parsed = DotenvModule.parse(fs4.readFileSync(path5, { encoding }));
+          const parsed = DotenvModule.parse(fs5.readFileSync(path6, { encoding }));
           DotenvModule.populate(parsedAll, parsed, options);
         } catch (e) {
           if (debug) {
-            _debug(`Failed to load ${path5} ${e.message}`);
+            _debug(`Failed to load ${path6} ${e.message}`);
           }
           lastError = e;
         }
@@ -7154,7 +7154,7 @@ var require_main = __commonJS({
         const shortPaths = [];
         for (const filePath of optionPaths) {
           try {
-            const relative = path4.relative(process.cwd(), filePath);
+            const relative = path5.relative(process.cwd(), filePath);
             shortPaths.push(relative);
           } catch (e) {
             if (debug) {
@@ -7732,8 +7732,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path4, errorMaps, issueData } = params;
-  const fullPath = [...path4, ...issueData.path || []];
+  const { data, path: path5, errorMaps, issueData } = params;
+  const fullPath = [...path5, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -7849,11 +7849,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path4, key) {
+  constructor(parent, value, path5, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path4;
+    this._path = path5;
     this._key = key;
   }
   get path() {
@@ -11490,10 +11490,10 @@ function assignProp(target, prop, value) {
     configurable: true
   });
 }
-function getElementAtPath(obj, path4) {
-  if (!path4)
+function getElementAtPath(obj, path5) {
+  if (!path5)
     return obj;
-  return path4.reduce((acc, key) => acc?.[key], obj);
+  return path5.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -11813,11 +11813,11 @@ function aborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path4, issues) {
+function prefixIssues(path5, issues) {
   return issues.map((iss) => {
     var _a;
     (_a = iss).path ?? (_a.path = []);
-    iss.path.unshift(path4);
+    iss.path.unshift(path5);
     return iss;
   });
 }
@@ -21493,21 +21493,58 @@ var config2 = {
 };
 
 // src/auth.ts
-import fs2 from "node:fs";
-import os from "node:os";
-import path2 from "node:path";
+import fs3 from "node:fs";
+import os2 from "node:os";
+import path3 from "node:path";
 
 // src/login.ts
 import http from "node:http";
+import fs2 from "node:fs";
+import os from "node:os";
+import path2 from "node:path";
 import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 var COOKIE_NAME = "authjs.session-token";
+var LOOPBACK_PORT = Number(process.env.PROMETHIST_LOOPBACK_PORT) || 51763;
+var PENDING_FILE = path2.join(os.homedir(), ".config", "promethist-mcp", "pending.json");
+var localStates = /* @__PURE__ */ new Set();
+var server = null;
+var onSessionCb = null;
+function readPending() {
+  try {
+    const obj = JSON.parse(fs2.readFileSync(PENDING_FILE, "utf8"));
+    const now = Date.now();
+    let changed = false;
+    for (const [s, exp] of Object.entries(obj)) if (!(exp > now)) {
+      delete obj[s];
+      changed = true;
+    }
+    if (changed) writePending(obj);
+    return obj;
+  } catch {
+    return {};
+  }
+}
+function writePending(obj) {
+  try {
+    fs2.mkdirSync(path2.dirname(PENDING_FILE), { recursive: true, mode: 448 });
+    fs2.writeFileSync(PENDING_FILE, JSON.stringify(obj), { mode: 384 });
+  } catch {
+  }
+}
 function openBrowser(url) {
   if (process.env.PROMETHIST_NO_BROWSER === "1") return;
-  if (process.platform !== "darwin" && process.platform !== "linux") return;
   try {
-    const cmd = process.platform === "darwin" ? "open" : "xdg-open";
-    spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
+    if (process.platform === "win32") {
+      spawn("cmd.exe", ["/c", "start", '""', `"${url}"`], {
+        windowsVerbatimArguments: true,
+        stdio: "ignore",
+        detached: true
+      }).unref();
+    } else {
+      const cmd = process.platform === "darwin" ? "open" : "xdg-open";
+      spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
+    }
   } catch {
   }
 }
@@ -21543,63 +21580,82 @@ background:url('${config2.webUrl}/assets/images/orb.png') center/contain no-repe
 <div class="content"><p class="title">${titleWhite}</p><p class="sub">${titleGray}</p><p class="hint">${hint}</p></div>
 <script>try{history.replaceState(null,'',location.pathname)}catch(e){}setTimeout(function(){try{window.close()}catch(e){}},1200)</script>
 </body></html>`;
-function loginViaBrowser(timeoutMs = 18e4, onAuthUrl) {
-  const state = crypto.randomBytes(16).toString("hex");
-  return new Promise((resolve, reject) => {
-    const server2 = http.createServer((req, res) => {
-      const u = new URL(req.url ?? "/", "http://127.0.0.1");
-      if (u.pathname !== "/cb") {
-        res.writeHead(404);
-        res.end();
-        return;
-      }
-      const stateOk = u.searchParams.get("state") === state;
-      const session = u.searchParams.get("session");
-      if (!stateOk || !session) {
-        res.writeHead(400, { "content-type": "text/html" });
-        res.end(page("Login failed", "Please try again", "You can close this tab and retry."));
-        return;
-      }
-      res.writeHead(200, { "content-type": "text/html" });
-      res.end(page("Connected", "to Promethist", "You can close this tab and return to Claude."));
-      clearTimeout(timer);
-      server2.close();
-      resolve(`${COOKIE_NAME}=${session}`);
-    });
-    const timer = setTimeout(() => {
-      server2.close();
-      reject(new Error("Browser login timed out."));
-    }, timeoutMs);
-    server2.on("error", (e) => {
-      clearTimeout(timer);
-      reject(e);
-    });
-    server2.listen(0, "127.0.0.1", () => {
-      const { port } = server2.address();
-      const redirectUri = `http://127.0.0.1:${port}/cb`;
-      const url = `${config2.webUrl}/cli/connect?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
-      console.error(`[promethist] Opening browser to log in:
-  ${url}`);
-      if (onAuthUrl) onAuthUrl(url);
-      openBrowser(url);
-    });
+function releaseIfIdle() {
+  if (localStates.size === 0) server?.unref();
+}
+function startCallbackListener(onSession) {
+  onSessionCb = onSession;
+  if (server) return;
+  const s = http.createServer((req, res) => {
+    const u = new URL(req.url ?? "/", `http://127.0.0.1:${LOOPBACK_PORT}`);
+    if (u.pathname !== "/cb") {
+      res.writeHead(404);
+      res.end();
+      return;
+    }
+    const state = u.searchParams.get("state") ?? "";
+    const session = u.searchParams.get("session") ?? "";
+    const store = readPending();
+    const ok = !!session && !!state && store[state] !== void 0 && store[state] > Date.now();
+    if (!ok) {
+      res.writeHead(400, { "content-type": "text/html" });
+      res.end(page("Login failed", "Please try again", "You can close this tab and retry."));
+      return;
+    }
+    delete store[state];
+    writePending(store);
+    localStates.delete(state);
+    try {
+      onSessionCb?.(`${COOKIE_NAME}=${session}`);
+    } catch {
+    }
+    releaseIfIdle();
+    res.writeHead(200, { "content-type": "text/html" });
+    res.end(page("Connected", "to Promethist", "You can close this tab and return to Claude."));
   });
+  s.on("error", () => {
+  });
+  s.listen(LOOPBACK_PORT, "127.0.0.1", () => s.unref());
+  server = s;
+}
+function beginLoginUrl() {
+  const state = crypto.randomBytes(16).toString("hex");
+  const expiry = Date.now() + 6e5;
+  const store = readPending();
+  store[state] = expiry;
+  writePending(store);
+  localStates.add(state);
+  server?.ref();
+  setTimeout(() => {
+    localStates.delete(state);
+    const s2 = readPending();
+    if (s2[state]) {
+      delete s2[state];
+      writePending(s2);
+    }
+    releaseIfIdle();
+  }, 6e5).unref();
+  const redirectUri = `http://127.0.0.1:${LOOPBACK_PORT}/cb`;
+  const url = `${config2.webUrl}/cli/connect?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+  console.error(`[promethist] Log in: ${url}`);
+  openBrowser(url);
+  return url;
 }
 
 // src/auth.ts
-var CACHE_DIR = path2.join(os.homedir(), ".config", "promethist-mcp");
-var SESSION_FILE = path2.join(CACHE_DIR, "session.json");
+var CACHE_DIR = path3.join(os2.homedir(), ".config", "promethist-mcp");
+var SESSION_FILE = path3.join(CACHE_DIR, "session.json");
 var accessCache = null;
 function readStoredCookie() {
   try {
-    return JSON.parse(fs2.readFileSync(SESSION_FILE, "utf8")).cookie || "";
+    return JSON.parse(fs3.readFileSync(SESSION_FILE, "utf8")).cookie || "";
   } catch {
     return "";
   }
 }
 function writeStoredCookie(cookie) {
-  fs2.mkdirSync(CACHE_DIR, { recursive: true, mode: 448 });
-  fs2.writeFileSync(SESSION_FILE, JSON.stringify({ cookie }, null, 2), { mode: 384 });
+  fs3.mkdirSync(CACHE_DIR, { recursive: true, mode: 448 });
+  fs3.writeFileSync(SESSION_FILE, JSON.stringify({ cookie }, null, 2), { mode: 384 });
 }
 async function exchangeCookieForToken(cookie) {
   try {
@@ -21618,7 +21674,14 @@ async function exchangeCookieForToken(cookie) {
     return null;
   }
 }
-var pendingLogin = null;
+function initAuth() {
+  startCallbackListener((cookie) => {
+    writeStoredCookie(cookie);
+    void exchangeCookieForToken(cookie).then((ex) => {
+      if (ex) accessCache = { token: ex.token, expEpochMs: ex.expMs };
+    });
+  });
+}
 async function beginLogin() {
   const existing = config2.cookie || readStoredCookie();
   if (existing) {
@@ -21628,22 +21691,7 @@ async function beginLogin() {
       return "";
     }
   }
-  if (pendingLogin) return pendingLogin.url;
-  let resolveUrl;
-  const urlP = new Promise((r) => {
-    resolveUrl = r;
-  });
-  const done = loginViaBrowser(6e5, (u) => resolveUrl(u)).then(async (cookie) => {
-    writeStoredCookie(cookie);
-    const ex = await exchangeCookieForToken(cookie);
-    if (ex) accessCache = { token: ex.token, expEpochMs: ex.expMs };
-  }).catch(() => {
-  }).finally(() => {
-    pendingLogin = null;
-  });
-  const url = await urlP;
-  pendingLogin = { url, done };
-  return url;
+  return beginLoginUrl();
 }
 async function getAccessToken() {
   if (config2.token) return config2.token;
@@ -21673,8 +21721,8 @@ function logout() {
   accessCache = null;
   let clearedFile = false;
   try {
-    if (fs2.existsSync(SESSION_FILE)) {
-      fs2.rmSync(SESSION_FILE);
+    if (fs3.existsSync(SESSION_FILE)) {
+      fs3.rmSync(SESSION_FILE);
       clearedFile = true;
     }
   } catch {
@@ -21684,14 +21732,14 @@ function logout() {
 }
 
 // src/client.ts
-async function apiRequest(method, path4, body) {
+async function apiRequest(method, path5, body) {
   let token;
   try {
     token = await getAccessToken();
   } catch (e) {
     return { ok: false, status: 0, error: e.message };
   }
-  const url = `${config2.baseUrl}${path4}`;
+  const url = `${config2.baseUrl}${path5}`;
   try {
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -21720,7 +21768,7 @@ async function apiRequest(method, path4, body) {
     return { ok: false, status: 0, error: `Request to ${url} failed: ${e.message}` };
   }
 }
-var apiGet = (path4) => apiRequest("GET", path4);
+var apiGet = (path5) => apiRequest("GET", path5);
 
 // src/tool-result.ts
 function toTool(r) {
@@ -21790,25 +21838,25 @@ function projectCatalog(bundle, kind) {
 }
 
 // src/guides.ts
-import fs3 from "node:fs";
-import path3 from "node:path";
+import fs4 from "node:fs";
+import path4 from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 function packageRoot(start) {
   let dir = start;
   for (let i = 0; i < 6; i++) {
-    if (fs3.existsSync(path3.join(dir, "package.json"))) return dir;
-    const parent = path3.dirname(dir);
+    if (fs4.existsSync(path4.join(dir, "package.json"))) return dir;
+    const parent = path4.dirname(dir);
     if (parent === dir) break;
     dir = parent;
   }
   return start;
 }
-var GUIDES_DIR = path3.join(packageRoot(path3.dirname(fileURLToPath2(import.meta.url))), "guides");
+var GUIDES_DIR = path4.join(packageRoot(path4.dirname(fileURLToPath2(import.meta.url))), "guides");
 var GUIDE_TOPICS = ["authoring", "domain", "quality", "evaluation", "knowledge", "multimodal", "integration", "workspace", "analytics", "billing", "testing"];
 function readGuide(topic) {
   if (!GUIDE_TOPICS.includes(topic)) return null;
   try {
-    return fs3.readFileSync(path3.join(GUIDES_DIR, `${topic}.md`), "utf8");
+    return fs4.readFileSync(path4.join(GUIDES_DIR, `${topic}.md`), "utf8");
   } catch {
     return null;
   }
@@ -21822,8 +21870,8 @@ var projectUrl = (tenantId, projectId) => `${studio(tenantId)}/projects/${projec
 var agentUrl = (tenantId, projectId, agentId) => `${projectUrl(tenantId, projectId)}/agents/${agentId}`;
 
 // src/agent-tools.ts
-function registerAgentTools(server2) {
-  server2.registerTool(
+function registerAgentTools(server3) {
+  server3.registerTool(
     "get_guide",
     {
       title: "Get Promethist guide",
@@ -21837,7 +21885,7 @@ function registerAgentTools(server2) {
       return md ? { content: [{ type: "text", text: md }] } : textTool(`Unknown guide "${topic}". Available: ${GUIDE_TOPICS.join(", ")}.`, true);
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_agent",
     {
       title: "Get agent",
@@ -21855,7 +21903,7 @@ function registerAgentTools(server2) {
       return toTool(r);
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_agents",
     {
       title: "List agents",
@@ -21879,7 +21927,7 @@ function registerAgentTools(server2) {
       return toTool(r);
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_agent_revisions",
     {
       title: "Get agent revisions",
@@ -21901,7 +21949,7 @@ function registerAgentTools(server2) {
       return toTool(await apiGet(`/api/v1/agents/${encodeURIComponent(ref)}/revisions`));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_voices",
     {
       title: "Get voices",
@@ -21910,7 +21958,7 @@ function registerAgentTools(server2) {
     },
     async () => toTool(await apiGet("/api/v1/realtime-configurations"))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_visuals",
     {
       title: "Get visuals",
@@ -21928,7 +21976,7 @@ function registerAgentTools(server2) {
       }
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_templates",
     {
       title: "List agent templates",
@@ -21937,7 +21985,7 @@ function registerAgentTools(server2) {
     },
     async () => toTool(await apiGet("/api/v1/templates"))
   );
-  server2.registerTool(
+  server3.registerTool(
     "revert_agent",
     {
       title: "Revert agent",
@@ -21956,7 +22004,7 @@ function registerAgentTools(server2) {
       );
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "promote_agent_to_preview",
     {
       title: "Promote agent to Preview",
@@ -21972,7 +22020,7 @@ function registerAgentTools(server2) {
       return toTool(await apiRequest("POST", `/api/v1/agents/${encodeURIComponent(agent_id)}/preview`));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "promote_agent_to_published",
     {
       title: "Promote agent to Published",
@@ -22047,11 +22095,11 @@ function validateInsightFields(type, p) {
   }
   return null;
 }
-function registerEvaluationTools(server2) {
+function registerEvaluationTools(server3) {
   const enc3 = encodeURIComponent;
   const evalsPath = (pid) => `/api/v1/project/${enc3(pid)}/evaluations`;
   const evalPath = (pid, eid) => `${evalsPath(pid)}/${enc3(eid)}`;
-  server2.registerTool(
+  server3.registerTool(
     "list_evaluations",
     {
       title: "List evaluations",
@@ -22060,7 +22108,7 @@ function registerEvaluationTools(server2) {
     },
     async ({ project_id }) => toTool(await apiGet(evalsPath(project_id)))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_evaluation",
     {
       title: "Get evaluation",
@@ -22072,7 +22120,7 @@ function registerEvaluationTools(server2) {
     },
     async ({ project_id, evaluation_id }) => toTool(await apiGet(evalPath(project_id, evaluation_id)))
   );
-  server2.registerTool(
+  server3.registerTool(
     "create_evaluation",
     {
       title: "Create evaluation",
@@ -22106,7 +22154,7 @@ function registerEvaluationTools(server2) {
       return toTool(await apiRequest("POST", evalsPath(a.project_id), { evaluation, insights: [] }));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "edit_evaluation",
     {
       title: "Edit evaluation",
@@ -22147,7 +22195,7 @@ function registerEvaluationTools(server2) {
       return toTool(await apiRequest("PUT", evalPath(a.project_id, a.evaluation_id), { evaluation, insights }));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "add_insight",
     {
       title: "Add insight (output data element)",
@@ -22182,7 +22230,7 @@ function registerEvaluationTools(server2) {
       );
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "edit_insight",
     {
       title: "Edit insight",
@@ -22238,7 +22286,7 @@ function registerEvaluationTools(server2) {
       );
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "remove_insight",
     {
       title: "Remove insight",
@@ -22267,7 +22315,7 @@ function registerEvaluationTools(server2) {
       );
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "delete_evaluation",
     {
       title: "Delete evaluation",
@@ -22309,10 +22357,10 @@ function summariseIngest(r) {
   }
   return { content: [{ type: "text", text }] };
 }
-function registerKnowledgeTools(server2) {
+function registerKnowledgeTools(server3) {
   const enc3 = encodeURIComponent;
   const base2 = (pid) => `/api/v1/project/${enc3(pid)}`;
-  server2.registerTool(
+  server3.registerTool(
     "list_knowledge",
     {
       title: "List knowledge",
@@ -22321,7 +22369,7 @@ function registerKnowledgeTools(server2) {
     },
     async ({ project_id }) => toTool(await apiGet(`${base2(project_id)}/knowledgeSpecifications`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_knowledge_spec",
     {
       title: "Get knowledge metadata",
@@ -22333,7 +22381,7 @@ function registerKnowledgeTools(server2) {
     },
     async ({ project_id, ref }) => toTool(await apiGet(`${base2(project_id)}/knowledgeSpecification/${enc3(ref)}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_knowledge",
     {
       title: "Get knowledge content",
@@ -22345,7 +22393,7 @@ function registerKnowledgeTools(server2) {
     },
     async ({ project_id, ref }) => toTool(await apiGet(`${base2(project_id)}/knowledge/${enc3(ref)}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "add_web_knowledge",
     {
       title: "Add web knowledge",
@@ -22370,7 +22418,7 @@ function registerKnowledgeTools(server2) {
       return summariseIngest(await apiRequest("POST", `${base2(a.project_id)}/knowledgeSpecifications/url`, body));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "refresh_web_knowledge",
     {
       title: "Refresh web knowledge",
@@ -22396,7 +22444,7 @@ function registerKnowledgeTools(server2) {
       return summariseIngest(await apiRequest("PUT", `${base2(a.project_id)}/knowledgeSpecifications/url/${enc3(a.ref)}`, body));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "edit_knowledge",
     {
       title: "Edit knowledge metadata",
@@ -22424,7 +22472,7 @@ function registerKnowledgeTools(server2) {
       return toTool(await apiRequest("PUT", `${base2(a.project_id)}/knowledgeSpecification/${enc3(a.ref)}`, body));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "delete_knowledge",
     {
       title: "Delete knowledge",
@@ -22491,10 +22539,10 @@ var fieldSchema = {
   show_as_detail: external_exports.boolean().optional().describe("handover only: show target agent card first (default false)."),
   is_global: external_exports.boolean().optional().describe("Available to all agents (default true). Non-global needs @multimodal:ref;.")
 };
-function registerMultimodalTools(server2) {
+function registerMultimodalTools(server3) {
   const enc3 = encodeURIComponent;
   const base2 = (pid) => `/api/v1/project/${enc3(pid)}`;
-  server2.registerTool(
+  server3.registerTool(
     "list_multimodal_interactions",
     {
       title: "List multimodal interactions",
@@ -22503,7 +22551,7 @@ function registerMultimodalTools(server2) {
     },
     async ({ project_id }) => toTool(await apiGet(`${base2(project_id)}/multimodal-interactions`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_multimodal_interaction",
     {
       title: "Get multimodal interaction",
@@ -22520,7 +22568,7 @@ function registerMultimodalTools(server2) {
       return row ? { content: [{ type: "text", text: JSON.stringify(row, null, 2) }] } : textTool(`No multimodal interaction with ref "${ref}".`, true);
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "create_multimodal_interaction",
     {
       title: "Create multimodal interaction",
@@ -22549,7 +22597,7 @@ function registerMultimodalTools(server2) {
       return out;
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "edit_multimodal_interaction",
     {
       title: "Edit multimodal interaction",
@@ -22573,7 +22621,7 @@ function registerMultimodalTools(server2) {
       return toTool(await apiRequest("PUT", `${base2(a.project_id)}/multimodal-interactions/${enc3(a.ref)}`, body));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "delete_multimodal_interaction",
     {
       title: "Delete multimodal interaction",
@@ -22599,10 +22647,10 @@ var HEADER_SCHEMA = external_exports.array(external_exports.object({ name: exter
 function toolNamesOf(row) {
   return (row?.toolSpecifications ?? []).map((t) => typeof t === "string" ? t : t?.name).filter(Boolean);
 }
-function registerIntegrationTools(server2) {
+function registerIntegrationTools(server3) {
   const enc3 = encodeURIComponent;
   const base2 = (pid) => `/api/v1/project/${enc3(pid)}`;
-  server2.registerTool(
+  server3.registerTool(
     "list_integrations",
     {
       title: "List integrations",
@@ -22611,7 +22659,7 @@ function registerIntegrationTools(server2) {
     },
     async ({ project_id }) => toTool(await apiGet(`${base2(project_id)}/integrations`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "create_pre_integration",
     {
       title: "Create pre-session webhook",
@@ -22646,7 +22694,7 @@ function registerIntegrationTools(server2) {
       return toTool(await apiRequest("POST", `${base2(a.project_id)}/integrations/pre`, body));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "create_post_integration",
     {
       title: "Create post-session webhook",
@@ -22677,7 +22725,7 @@ function registerIntegrationTools(server2) {
       return toTool(await apiRequest("POST", `${base2(a.project_id)}/integrations/post`, body));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "create_mcp_integration",
     {
       title: "Add MCP server integration",
@@ -22706,7 +22754,7 @@ function registerIntegrationTools(server2) {
       return toTool(await apiRequest("POST", `${base2(a.project_id)}/integrations/during`, body));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "edit_integration",
     {
       title: "Edit integration (pre/during/post)",
@@ -22768,7 +22816,7 @@ function registerIntegrationTools(server2) {
       return toTool(await apiRequest("PUT", `${base2(a.project_id)}/integrations/${enc3(a.kind)}?ref=${enc3(a.ref)}`, body));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "delete_integration",
     {
       title: "Delete integration",
@@ -22787,7 +22835,7 @@ function registerIntegrationTools(server2) {
       return r.ok ? textTool(`Deleted ${a.type} integration "${a.ref}".`) : toTool(r);
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_connectors",
     {
       title: "List MCP connectors",
@@ -22796,7 +22844,7 @@ function registerIntegrationTools(server2) {
     },
     async ({ project_id }) => toTool(await apiGet(`${base2(project_id)}/integrations/connectors`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "enable_connector",
     {
       title: "Enable MCP connector",
@@ -22816,7 +22864,7 @@ function registerIntegrationTools(server2) {
       })
     )
   );
-  server2.registerTool(
+  server3.registerTool(
     "update_connector",
     {
       title: "Update MCP connector tool selection",
@@ -22836,7 +22884,7 @@ function registerIntegrationTools(server2) {
       })
     )
   );
-  server2.registerTool(
+  server3.registerTool(
     "delete_connector",
     {
       title: "Disable/delete MCP connector",
@@ -22854,7 +22902,7 @@ function registerIntegrationTools(server2) {
       return r.ok ? textTool(`Disabled connector "${a.ref}".`) : toTool(r);
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "load_mcp_tools",
     {
       title: "Probe an MCP server's tools",
@@ -22880,8 +22928,8 @@ var ROLE = external_exports.enum(["Owner", "Editor", "Viewer"]);
 var enc = encodeURIComponent;
 var tBase = (id) => `/api/v1/tenant/${enc(id)}`;
 var pBase = (id) => `/api/v1/project/${enc(id)}`;
-function registerWorkspaceTools(server2) {
-  server2.registerTool(
+function registerWorkspaceTools(server3) {
+  server3.registerTool(
     "get_tenant",
     {
       title: "Get tenant",
@@ -22890,7 +22938,7 @@ function registerWorkspaceTools(server2) {
     },
     async ({ tenant_id }) => toTool(await apiGet(tBase(tenant_id)))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_tenant_context",
     {
       title: "Get tenant context",
@@ -22899,7 +22947,7 @@ function registerWorkspaceTools(server2) {
     },
     async ({ tenant_id }) => toTool(await apiGet(`${tBase(tenant_id)}/context`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "create_tenant",
     {
       title: "Create tenant",
@@ -22908,7 +22956,7 @@ function registerWorkspaceTools(server2) {
     },
     async ({ name }) => toTool(await apiRequest("POST", "/api/v1/tenants", { name }))
   );
-  server2.registerTool(
+  server3.registerTool(
     "edit_tenant",
     {
       title: "Edit tenant",
@@ -22926,7 +22974,7 @@ function registerWorkspaceTools(server2) {
       return toTool(await apiRequest("PATCH", tBase(a.tenant_id), { name: a.name ?? ex.name, logo: a.logo ?? ex.logo ?? null }));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_projects",
     {
       title: "List projects",
@@ -22935,7 +22983,7 @@ function registerWorkspaceTools(server2) {
     },
     async ({ tenant_id }) => toTool(await apiGet(`${tBase(tenant_id)}/projects`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_project_context",
     {
       title: "Get project context",
@@ -22944,7 +22992,7 @@ function registerWorkspaceTools(server2) {
     },
     async ({ project_id }) => toTool(await apiGet(`${pBase(project_id)}/context`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_project_users",
     {
       title: "List project users (by sessions)",
@@ -22953,7 +23001,7 @@ function registerWorkspaceTools(server2) {
     },
     async ({ project_id }) => toTool(await apiGet(`${pBase(project_id)}/users`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "create_project",
     {
       title: "Create project",
@@ -22978,7 +23026,7 @@ function registerWorkspaceTools(server2) {
       return toTool(await apiRequest("POST", `${tBase(a.tenant_id)}/projects`, body));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "edit_project",
     {
       title: "Edit project",
@@ -23017,7 +23065,7 @@ function registerWorkspaceTools(server2) {
       return out;
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_tenant_members",
     {
       title: "List tenant members",
@@ -23026,7 +23074,7 @@ function registerWorkspaceTools(server2) {
     },
     async ({ tenant_id }) => toTool(await apiGet(`${tBase(tenant_id)}/members`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "set_tenant_member_role",
     {
       title: "Set tenant member role",
@@ -23039,7 +23087,7 @@ function registerWorkspaceTools(server2) {
     },
     async (a) => toTool(await apiRequest("PUT", `${tBase(a.tenant_id)}/members/${enc(a.user_id)}/role`, { role: a.role }))
   );
-  server2.registerTool(
+  server3.registerTool(
     "remove_tenant_member",
     {
       title: "Remove tenant member",
@@ -23057,7 +23105,7 @@ function registerWorkspaceTools(server2) {
       return r.ok ? textTool(`Removed member "${a.user_id}" from the account.`) : toTool(r);
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_project_members",
     {
       title: "List project members",
@@ -23066,7 +23114,7 @@ function registerWorkspaceTools(server2) {
     },
     async ({ project_id }) => toTool(await apiGet(`${pBase(project_id)}/members`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "set_project_member_role",
     {
       title: "Set project member role",
@@ -23079,7 +23127,7 @@ function registerWorkspaceTools(server2) {
     },
     async (a) => toTool(await apiRequest("PUT", `${pBase(a.project_id)}/members/${enc(a.user_id)}/role`, { role: a.role }))
   );
-  server2.registerTool(
+  server3.registerTool(
     "remove_project_member",
     {
       title: "Remove project member",
@@ -23097,7 +23145,7 @@ function registerWorkspaceTools(server2) {
       return r.ok ? textTool(`Removed member "${a.user_id}" from the project.`) : toTool(r);
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_tenant_invitations",
     {
       title: "List tenant invitations",
@@ -23106,7 +23154,7 @@ function registerWorkspaceTools(server2) {
     },
     async ({ tenant_id }) => toTool(await apiGet(`${tBase(tenant_id)}/invitations`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_project_invitations",
     {
       title: "List project invitations",
@@ -23115,7 +23163,7 @@ function registerWorkspaceTools(server2) {
     },
     async ({ project_id }) => toTool(await apiGet(`${pBase(project_id)}/invitations`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "invite_members_to_tenant",
     {
       title: "Invite members to tenant",
@@ -23128,7 +23176,7 @@ function registerWorkspaceTools(server2) {
     },
     async (a) => toTool(await apiRequest("POST", `${tBase(a.tenant_id)}/invitations`, { emails: a.emails, role: a.role }))
   );
-  server2.registerTool(
+  server3.registerTool(
     "invite_members_to_project",
     {
       title: "Invite members to project",
@@ -23141,7 +23189,7 @@ function registerWorkspaceTools(server2) {
     },
     async (a) => toTool(await apiRequest("POST", `${pBase(a.project_id)}/invitations`, { emails: a.emails, role: a.role }))
   );
-  server2.registerTool(
+  server3.registerTool(
     "revoke_tenant_invitation",
     {
       title: "Revoke tenant invitation",
@@ -23159,7 +23207,7 @@ function registerWorkspaceTools(server2) {
       return r.ok ? textTool(`Revoked account invitation "${a.invitation_id}".`) : toTool(r);
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "revoke_project_invitation",
     {
       title: "Revoke project invitation",
@@ -23205,10 +23253,10 @@ function filterQs(a, withState = false) {
     ...withState ? { agentState: a.agent_state } : {}
   });
 }
-function registerAnalyticsTools(server2) {
+function registerAnalyticsTools(server3) {
   const aBase = (pid) => `/api/v1/project/${enc2(pid)}/analytics`;
   const tBase2 = (tid) => `/api/v1/tenant/${enc2(tid)}`;
-  server2.registerTool(
+  server3.registerTool(
     "get_conversation_analytics",
     {
       title: "Conversation analytics",
@@ -23217,7 +23265,7 @@ function registerAnalyticsTools(server2) {
     },
     async (a) => toTool(await apiGet(`${aBase(a.project_id)}/conversations${filterQs(a)}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_usage_analytics",
     {
       title: "Usage analytics (minutes)",
@@ -23226,7 +23274,7 @@ function registerAnalyticsTools(server2) {
     },
     async (a) => toTool(await apiGet(`${aBase(a.project_id)}/conversations/length${filterQs(a)}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_user_analytics",
     {
       title: "User analytics",
@@ -23235,7 +23283,7 @@ function registerAnalyticsTools(server2) {
     },
     async (a) => toTool(await apiGet(`${aBase(a.project_id)}/users${filterQs(a)}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_relational_analytics",
     {
       title: "Relational analytics (judge scores)",
@@ -23244,7 +23292,7 @@ function registerAnalyticsTools(server2) {
     },
     async (a) => toTool(await apiGet(`${aBase(a.project_id)}/relational${filterQs(a)}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_multimodal_analytics",
     {
       title: "Multimodal analytics",
@@ -23253,7 +23301,7 @@ function registerAnalyticsTools(server2) {
     },
     async (a) => toTool(await apiGet(`${aBase(a.project_id)}/multimodal${filterQs(a, true)}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_evaluation_analytics",
     {
       title: "Evaluation analytics",
@@ -23262,7 +23310,7 @@ function registerAnalyticsTools(server2) {
     },
     async (a) => toTool(await apiGet(`${aBase(a.project_id)}/evaluations${filterQs(a, true)}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_extractor_analytics",
     {
       title: "Extractor analytics",
@@ -23271,7 +23319,7 @@ function registerAnalyticsTools(server2) {
     },
     async (a) => toTool(await apiRequest("POST", `${aBase(a.project_id)}/extractors${filterQs(a, true)}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_analytics_users",
     {
       title: "List analytics users",
@@ -23285,7 +23333,7 @@ function registerAnalyticsTools(server2) {
     },
     async (a) => toTool(await apiGet(`${aBase(a.project_id)}/users/list${qs({ query: a.query, offset: a.offset, limit: a.limit })}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_analytics_summary",
     {
       title: "Analytics summary",
@@ -23314,7 +23362,7 @@ function registerAnalyticsTools(server2) {
       return { content: [{ type: "text", text: JSON.stringify(out, null, 2) }] };
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "export_analytics",
     {
       title: "Export analytics",
@@ -23346,7 +23394,7 @@ function registerAnalyticsTools(server2) {
       return toTool(await apiGet(`${aBase(a.project_id)}/export${q}`));
     }
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_subscription",
     {
       title: "Get subscription",
@@ -23355,7 +23403,7 @@ function registerAnalyticsTools(server2) {
     },
     async ({ tenant_id }) => toTool(await apiGet(`${tBase2(tenant_id)}/subscription`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_subscription_by_project",
     {
       title: "Get subscription (by project)",
@@ -23364,7 +23412,7 @@ function registerAnalyticsTools(server2) {
     },
     async ({ project_id }) => toTool(await apiGet(`/api/v1/project/${enc2(project_id)}/subscription`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_subscription_by_agent",
     {
       title: "Get subscription (by agent)",
@@ -23373,7 +23421,7 @@ function registerAnalyticsTools(server2) {
     },
     async ({ agent_id }) => toTool(await apiGet(`/api/v1/agent/${enc2(agent_id)}/subscription`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "list_invoices",
     {
       title: "List invoices",
@@ -23386,7 +23434,7 @@ function registerAnalyticsTools(server2) {
     },
     async (a) => toTool(await apiGet(`${tBase2(a.tenant_id)}/invoices${qs({ first: a.first, startingAfter: a.starting_after })}`))
   );
-  server2.registerTool(
+  server3.registerTool(
     "get_usage",
     {
       title: "Get billing usage",
@@ -23406,8 +23454,8 @@ function registerAnalyticsTools(server2) {
 
 // src/test-tools.ts
 var sessions = /* @__PURE__ */ new Map();
-function registerTestTools(server2) {
-  server2.registerTool(
+function registerTestTools(server3) {
+  server3.registerTool(
     "test_agent",
     {
       title: "Test a Promethist agent (live chat)",
@@ -23568,11 +23616,11 @@ Also manage the **workspace** \u2014 accounts/tenants and projects (\`get_tenant
 **Web links \u2014 ALWAYS link, inline.** Every time you mention ANY linkable entity (account/tenant, project, agent, evaluation, knowledge base, integration, \u2026) \u2014 including right after creating or editing one \u2014 write its NAME as a Markdown link to its web URL, inline, e.g. \`[Ada](https://\u2026/agents/\u2026)\`. NEVER print a bare URL, and NEVER write an entity's name without making it a link. If one sentence names several entities (e.g. an agent in a project under a tenant), link EACH of them: \`[Ada](\u2026) in [Demo Project](\u2026) under [Demo](\u2026)\`. Several read tools already return a \`webUrl\` field (\`list_tenants\`, \`get_project\`, \`get_agent\`, \`list_agents\`) \u2014 use it directly. For anything else, build the link using the SAME base host as those \`webUrl\` values, with this shape: tenant \`<base>/dashboard/studio/accounts/<tenantId>\`; project \`<base>/dashboard/studio/accounts/<tenantId>/projects/<projectId>\`; then under the project \u2014 agent \`/agents/<agentId>\`, evaluation \`/evaluations/update/<evaluationId>\`, knowledge \`/knowledges/<knowledgeId>\`, plus \`/analytics\`, \`/integrations\`, \`/interactive-content\`, \`/members\`, \`/settings\`. Every link needs BOTH tenantId and projectId \u2014 get the tenant\u2194project mapping from \`list_tenants\`; \`get_agent\` responses include \`project.id\` and \`project.tenant.id\`.`;
 
 // src/index.ts
-var server = new McpServer(
+var server2 = new McpServer(
   { name: "promethist-platform", version: "0.1.0" },
   { instructions: PROMETHIST_INSTRUCTIONS }
 );
-server.registerTool(
+server2.registerTool(
   "login",
   {
     title: "Log in to Promethist",
@@ -23602,7 +23650,7 @@ ${url}
     }
   }
 );
-server.registerTool(
+server2.registerTool(
   "logout",
   {
     title: "Log out of Promethist",
@@ -23615,7 +23663,7 @@ server.registerTool(
     return { content: [{ type: "text", text: msg }] };
   }
 );
-server.registerTool(
+server2.registerTool(
   "list_tenants",
   {
     title: "List tenants",
@@ -23635,7 +23683,7 @@ server.registerTool(
     return toTool(r);
   }
 );
-server.registerTool(
+server2.registerTool(
   "get_project",
   {
     title: "Get project",
@@ -23660,7 +23708,7 @@ var OPTIONAL_CONTENT = [
   "initialPlan",
   "guardrails"
 ];
-server.registerTool(
+server2.registerTool(
   "create_agent",
   {
     title: "Create agent",
@@ -23698,7 +23746,7 @@ server.registerTool(
     return toTool(r);
   }
 );
-server.registerTool(
+server2.registerTool(
   "edit_agent",
   {
     title: "Edit agent",
@@ -23807,16 +23855,17 @@ server.registerTool(
     return toTool(r);
   }
 );
-registerAgentTools(server);
-registerEvaluationTools(server);
-registerKnowledgeTools(server);
-registerMultimodalTools(server);
-registerIntegrationTools(server);
-registerWorkspaceTools(server);
-registerAnalyticsTools(server);
-registerTestTools(server);
+registerAgentTools(server2);
+registerEvaluationTools(server2);
+registerKnowledgeTools(server2);
+registerMultimodalTools(server2);
+registerIntegrationTools(server2);
+registerWorkspaceTools(server2);
+registerAnalyticsTools(server2);
+registerTestTools(server2);
 async function main() {
-  await server.connect(new StdioServerTransport());
+  initAuth();
+  await server2.connect(new StdioServerTransport());
   const mode = config2.token ? "token" : config2.cookie ? "cookie" : "NONE";
   console.error(`[promethist] connected. api=${config2.baseUrl} auth=${mode}`);
 }

@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { apiGet, apiRequest } from "./client.js";
-import { beginLogin, logout } from "./auth.js";
+import { beginLogin, logout, initAuth } from "./auth.js";
 import { toTool } from "./tool-result.js";
 import { registerAgentTools } from "./agent-tools.js";
 import { registerEvaluationTools } from "./evaluation-tools.js";
@@ -308,6 +308,7 @@ registerAnalyticsTools(server);
 registerTestTools(server);
 
 async function main() {
+  initAuth(); // start the persistent login-callback listener (survives idle process cycling)
   await server.connect(new StdioServerTransport());
   const mode = config.token ? "token" : config.cookie ? "cookie" : "NONE";
   // stdout is the protocol channel — only ever log to stderr.

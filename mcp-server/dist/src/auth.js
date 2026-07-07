@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { config } from "./config.js";
-import { loginViaBrowser } from "./login.js";
+import { startCallbackListener, beginLoginUrl } from "./login.js";
 const CACHE_DIR = path.join(os.homedir(), ".config", "promethist-mcp");
 const SESSION_FILE = path.join(CACHE_DIR, "session.json");
 let accessCache = null;
@@ -39,33 +39,24 @@ async function exchangeCookieForToken(cookie) {
         return null;
     }
 }
-/** Run the browser login, cache the session, return the user's email. */
-export async function interactiveLogin() {
-    // Another process/session may already have logged in while we were idle — re-check first.
-    const existing = config.cookie || readStoredCookie();
-    if (existing) {
-        const ex = await exchangeCookieForToken(existing);
-        if (ex) {
-            accessCache = { token: ex.token, expEpochMs: ex.expMs };
-            return ex.email ?? "unknown";
-        }
-    }
-    const cookie = await loginViaBrowser();
-    writeStoredCookie(cookie);
-    const ex = await exchangeCookieForToken(cookie);
-    if (!ex)
-        throw new Error("Login completed but the session returned no access token. Please try again.");
-    accessCache = { token: ex.token, expEpochMs: ex.expMs };
-    return ex.email ?? "unknown";
-}
-// A login in progress: the auth URL (to print for the user) + a background promise that caches the
-// session on success. Idempotent so repeated tool calls reuse the one loopback listener.
-let pendingLogin = null;
 /**
- * Start a browser login WITHOUT blocking. Returns the auth URL so the caller can PRINT it for the
- * user to click (the browser may also auto-open on macOS/Linux; on Windows it does not). The session
- * is captured + cached in the BACKGROUND; once the user logs in, the next getAccessToken() call
- * succeeds. Returns "" if a valid session already exists (nothing to do).
+ * Start the persistent login-callback listener. Call ONCE at server startup. When the user finishes
+ * logging in (in any running instance), the redirect lands here; we store the cookie and warm the
+ * access-token cache so the next tool call is authenticated.
+ */
+export function initAuth() {
+    startCallbackListener((cookie) => {
+        writeStoredCookie(cookie);
+        void exchangeCookieForToken(cookie).then((ex) => {
+            if (ex)
+                accessCache = { token: ex.token, expEpochMs: ex.expMs };
+        });
+    });
+}
+/**
+ * Start a browser login. Returns the /cli/connect URL for the caller to PRINT (and it best-effort
+ * auto-opens the browser). The session is captured by the persistent listener and cached; once the
+ * user logs in, the next getAccessToken() call succeeds. Returns "" if already logged in.
  */
 export async function beginLogin() {
     const existing = config.cookie || readStoredCookie();
@@ -76,36 +67,14 @@ export async function beginLogin() {
             return "";
         }
     }
-    if (pendingLogin)
-        return pendingLogin.url;
-    let resolveUrl;
-    const urlP = new Promise((r) => {
-        resolveUrl = r;
-    });
-    // 10-min window so the user has time to open the link and sign in.
-    const done = loginViaBrowser(600_000, (u) => resolveUrl(u))
-        .then(async (cookie) => {
-        writeStoredCookie(cookie);
-        const ex = await exchangeCookieForToken(cookie);
-        if (ex)
-            accessCache = { token: ex.token, expEpochMs: ex.expMs };
-    })
-        .catch(() => {
-        /* timed out / failed — the user can run login again to get a fresh link */
-    })
-        .finally(() => {
-        pendingLogin = null;
-    });
-    const url = await urlP; // resolves as soon as the loopback listener is up
-    pendingLogin = { url, done };
-    return url;
+    return beginLoginUrl();
 }
 /**
  * Resolve a bearer token, in priority order:
  *   1. PROMETHIST_TOKEN (raw access token, env).
  *   2. cached access token still valid.
  *   3. a cookie (PROMETHIST_COOKIE env, else stored from a prior browser login) -> /api/auth/session.
- *   4. browser login (unless PROMETHIST_NO_BROWSER=1).
+ *   4. browser login (unless PROMETHIST_NO_BROWSER=1): prints a link and asks the user to retry.
  */
 export async function getAccessToken() {
     if (config.token)
@@ -124,11 +93,11 @@ export async function getAccessToken() {
     if (process.env.PROMETHIST_NO_BROWSER === "1") {
         throw new Error("Not authenticated. Run the 'login' tool to sign in (or set PROMETHIST_COOKIE / PROMETHIST_TOKEN).");
     }
-    // Non-blocking: start login (prints a link; the browser may auto-open on macOS) and tell the user
-    // to finish signing in, rather than hanging for minutes if the browser never opens (e.g. Windows).
+    // Non-blocking: print a link (browser also auto-opens on macOS) and ask the user to retry once
+    // they've signed in — the persistent listener captures the session in the meantime.
     const url = await beginLogin();
     if (accessCache)
-        return accessCache.token; // a valid session already existed / just completed
+        return accessCache.token; // a valid session already existed
     throw new Error(`Not logged in yet. Open this link in your browser to sign in:\n${url}\n\nOnce you've finished logging in there, run your request again.`);
 }
 /** Forget the cached session so the next call re-prompts for browser login. */

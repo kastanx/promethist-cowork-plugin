@@ -1,22 +1,71 @@
 import http from "node:http";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import { config } from "./config.js";
 const COOKIE_NAME = "authjs.session-token";
-function openBrowser(url) {
-    if (process.env.PROMETHIST_NO_BROWSER === "1")
-        return; // automated tests / headless
-    // Auto-open only on macOS/Linux (open/xdg-open pass the URL as one argv element, so `&` is safe).
-    // On Windows we do NOT auto-open — `cmd start` truncates the URL at `&`, and `explorer.exe <url>`
-    // opens a Documents window instead of the browser. The login flow prints the URL to click instead.
-    if (process.platform !== "darwin" && process.platform !== "linux")
-        return;
+// Fixed loopback port so the /cli/connect redirect always targets a known address. Overridable for
+// tests. A fixed port lets ANY running plugin instance answer the callback (Claude Code + cowork may
+// both run the plugin) and lets a restarted process answer a callback started by a prior one.
+const LOOPBACK_PORT = Number(process.env.PROMETHIST_LOOPBACK_PORT) || 51763;
+// Pending login states persisted to disk (state -> expiryMs), so the callback is still valid even if
+// the MCP host recycles/kills the plugin process between "login" and the browser redirect back — the
+// earlier per-login in-process loopback died as soon as the tool returned, which is why the redirect
+// to localhost was "unreachable". A small in-memory set tracks THIS process's logins for ref-counting.
+const PENDING_FILE = path.join(os.homedir(), ".config", "promethist-mcp", "pending.json");
+const localStates = new Set();
+let server = null;
+let onSessionCb = null;
+function readPending() {
     try {
-        const cmd = process.platform === "darwin" ? "open" : "xdg-open";
-        spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
+        const obj = JSON.parse(fs.readFileSync(PENDING_FILE, "utf8"));
+        const now = Date.now();
+        let changed = false;
+        for (const [s, exp] of Object.entries(obj))
+            if (!(exp > now)) {
+                delete obj[s];
+                changed = true;
+            }
+        if (changed)
+            writePending(obj);
+        return obj;
     }
     catch {
-        // If we can't open a browser, the user can still copy the URL from the login message.
+        return {};
+    }
+}
+function writePending(obj) {
+    try {
+        fs.mkdirSync(path.dirname(PENDING_FILE), { recursive: true, mode: 0o700 });
+        fs.writeFileSync(PENDING_FILE, JSON.stringify(obj), { mode: 0o600 });
+    }
+    catch {
+        /* best-effort */
+    }
+}
+function openBrowser(url) {
+    if (process.env.PROMETHIST_NO_BROWSER === "1")
+        return; // tests / headless
+    try {
+        if (process.platform === "win32") {
+            // cmd `start` opens the default browser; the URL MUST be double-quoted or cmd treats `&` as a
+            // command separator and truncates it. windowsVerbatimArguments keeps our exact quoting. This is
+            // best-effort only — the URL is also PRINTED for the user to click.
+            spawn("cmd.exe", ["/c", "start", '""', `"${url}"`], {
+                windowsVerbatimArguments: true,
+                stdio: "ignore",
+                detached: true,
+            }).unref();
+        }
+        else {
+            const cmd = process.platform === "darwin" ? "open" : "xdg-open";
+            spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
+        }
+    }
+    catch {
+        // The URL is printed too — the user can open it manually.
     }
 }
 // Matches the Promethist /login page: dark theme, white orb logo + "promethist"
@@ -53,52 +102,76 @@ background:url('${config.webUrl}/assets/images/orb.png') center/contain no-repea
 <div class="content"><p class="title">${titleWhite}</p><p class="sub">${titleGray}</p><p class="hint">${hint}</p></div>
 <script>try{history.replaceState(null,'',location.pathname)}catch(e){}setTimeout(function(){try{window.close()}catch(e){}},1200)</script>
 </body></html>`;
+function releaseIfIdle() {
+    if (localStates.size === 0)
+        server?.unref(); // this process has nothing pending → let it exit normally
+}
 /**
- * Open the browser to the web app's /cli/connect handoff, run a one-shot loopback listener,
- * and resolve with the session cookie string ("authjs.session-token=...") once the app
- * redirects back. Rejects on timeout.
+ * Start the persistent loopback listener once (at server startup). It answers the /cli/connect
+ * redirect at http://127.0.0.1:<port>/cb, validates the state against the on-disk pending set, and
+ * hands the session cookie to `onSession`. Idempotent. If the port is already bound (another plugin
+ * instance), this no-ops and that instance answers the callback (both read the same session file).
  */
-export function loginViaBrowser(timeoutMs = 180_000, onAuthUrl) {
-    const state = crypto.randomBytes(16).toString("hex");
-    return new Promise((resolve, reject) => {
-        const server = http.createServer((req, res) => {
-            const u = new URL(req.url ?? "/", "http://127.0.0.1");
-            if (u.pathname !== "/cb") {
-                res.writeHead(404);
-                res.end();
-                return;
-            }
-            const stateOk = u.searchParams.get("state") === state;
-            const session = u.searchParams.get("session");
-            if (!stateOk || !session) {
-                res.writeHead(400, { "content-type": "text/html" });
-                res.end(page("Login failed", "Please try again", "You can close this tab and retry."));
-                return;
-            }
-            res.writeHead(200, { "content-type": "text/html" });
-            res.end(page("Connected", "to Promethist", "You can close this tab and return to Claude."));
-            clearTimeout(timer);
-            server.close();
-            resolve(`${COOKIE_NAME}=${session}`);
-        });
-        const timer = setTimeout(() => {
-            server.close();
-            reject(new Error("Browser login timed out."));
-        }, timeoutMs);
-        server.on("error", (e) => {
-            clearTimeout(timer);
-            reject(e);
-        });
-        server.listen(0, "127.0.0.1", () => {
-            const { port } = server.address();
-            const redirectUri = `http://127.0.0.1:${port}/cb`;
-            const url = `${config.webUrl}/cli/connect?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
-            console.error(`[promethist] Opening browser to log in:\n  ${url}`);
-            // onAuthUrl exposes the URL to the caller (the login tool prints it); also auto-open the
-            // browser on macOS/Linux (no-op on Windows / when PROMETHIST_NO_BROWSER=1).
-            if (onAuthUrl)
-                onAuthUrl(url);
-            openBrowser(url);
-        });
+export function startCallbackListener(onSession) {
+    onSessionCb = onSession;
+    if (server)
+        return;
+    const s = http.createServer((req, res) => {
+        const u = new URL(req.url ?? "/", `http://127.0.0.1:${LOOPBACK_PORT}`);
+        if (u.pathname !== "/cb") {
+            res.writeHead(404);
+            res.end();
+            return;
+        }
+        const state = u.searchParams.get("state") ?? "";
+        const session = u.searchParams.get("session") ?? "";
+        const store = readPending();
+        const ok = !!session && !!state && store[state] !== undefined && store[state] > Date.now();
+        if (!ok) {
+            res.writeHead(400, { "content-type": "text/html" });
+            res.end(page("Login failed", "Please try again", "You can close this tab and retry."));
+            return;
+        }
+        delete store[state];
+        writePending(store);
+        localStates.delete(state);
+        try {
+            onSessionCb?.(`${COOKIE_NAME}=${session}`);
+        }
+        catch {
+            /* caching is handled downstream */
+        }
+        releaseIfIdle();
+        res.writeHead(200, { "content-type": "text/html" });
+        res.end(page("Connected", "to Promethist", "You can close this tab and return to Claude."));
     });
+    s.on("error", () => {
+        /* EADDRINUSE: another plugin instance owns the port and will answer the callback — fine. */
+    });
+    s.listen(LOOPBACK_PORT, "127.0.0.1", () => s.unref()); // idle (does not hold the process) until a login is pending
+    server = s;
+}
+/** Register a pending login and return the /cli/connect URL to open. Non-blocking. */
+export function beginLoginUrl() {
+    const state = crypto.randomBytes(16).toString("hex");
+    const expiry = Date.now() + 600_000; // 10-min window to finish signing in
+    const store = readPending();
+    store[state] = expiry;
+    writePending(store);
+    localStates.add(state);
+    server?.ref(); // keep the process alive through the browser round-trip
+    setTimeout(() => {
+        localStates.delete(state);
+        const s2 = readPending();
+        if (s2[state]) {
+            delete s2[state];
+            writePending(s2);
+        }
+        releaseIfIdle();
+    }, 600_000).unref();
+    const redirectUri = `http://127.0.0.1:${LOOPBACK_PORT}/cb`;
+    const url = `${config.webUrl}/cli/connect?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+    console.error(`[promethist] Log in: ${url}`);
+    openBrowser(url); // best-effort auto-open; the URL is printed regardless
+    return url;
 }
